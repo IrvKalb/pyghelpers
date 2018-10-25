@@ -85,18 +85,21 @@ class Timer():
         self.startTime = time.time()
 
     def update(self):
-        """Updates the timer in every frame
+        """Call this in every frame to update the timer
 
         Returns:
-        |   False - most of the time
-        |   True - when the timer is finished
-        |          (you can use this indication, or set up a callback)
+           |   False - most of the time
+           |   True - when the timer is finished
+           |          (you can use this indication, or set up a callback)
 
         """
         if not self.running:
             return False
         timeElapsed = time.time() - self.startTime
-        if timeElapsed >= self.timeInSeconds:
+        if timeElapsed < self.timeInSeconds:
+            return False  # running but not reached limit
+
+        else:  # Timer has finished
             self.running = False
             if self.callBack is not None:
                 self.callBack(self.nickname)
@@ -114,13 +117,13 @@ class CountUpTimer():
 
     1)  Create a CountUpTimer object:
 
-        myTimer = pyghelpers.CoutUpTimer(10)
+        myTimer = pyghelpers.CoutUpTimer()
 
     2)  When you want the timer to start running, make this call:
 
         myTimer.start()
 
-        This call also be called to restart the timer.
+        This method also be made to restart the timer.
 
     3)  Whenever you want to get the current time (in seconds since start), you can call any of:
 
@@ -155,7 +158,7 @@ class CountUpTimer():
         self.savedSecondsElapsed = 0
 
     def getTime(self):
-        """Returns the time elapsed" as a float"""
+        """Returns the time elapsed as a float"""
         if self.running:
             secondsNow = time.time()
             secondsElapsed = secondsNow - self.secondsStart
@@ -215,7 +218,7 @@ class CountDownTimer():
 
         myTimer.start()
 
-        This call also be called to restart the timer.
+        This method also be used to restart the timer.
 
     3)  Whenever you want to get the current time (in seconds since start), you can call any of:
 
@@ -352,7 +355,7 @@ class SceneMgr():
         |      where each sceneKey is a unique string identifying the scene
         |      and each sceneObject is an object instantiated from a scene class
         |      (For details on Scenes, see the Scene class)
-        | startingSceneKey -is the string identifying which scene to start with
+        | startingSceneKey - is the string identifying which scene is the starting scene
         | fps - is the frames per second at which the program should run
 
     Based on a concept of a "Scene Manager" by Blake O'Hare of Nerd Paradise (nerdparadise.com)
@@ -377,16 +380,25 @@ class SceneMgr():
             oScene._setRefToSceneMgr(self)
 
     def run(self):
-        """ This implements the main pygame loop
+        """ This method implements the main pygame loop.
+
+        It should typically be called as the last line of your main program.
 
         It is designed to call a standardized set of methods in the current scene.
         Therefore, all scenes must implement these methods (polymorphism):
 
-        |    enter
-        |    handleInputs   # must be overridden
-        |    update
-        |    draw           # must be overridden
-        |    leave
+           |    handleInputs  # called in every frame
+           |    draw          # called in every frame
+
+
+        The following methods can be implemented in a scene.  If they are not
+        implemented, then the default version in the Scene subclass will be used.
+        (Those methods do not do anything):
+
+           |    enter          # called once whenever the scene is entered
+           |    update         # called in every frame
+           |    leave          # called once whenever the scene is left
+
         
         """
         clock = pygame.time.Clock()
@@ -508,7 +520,7 @@ class Scene():
     When you want to go to a new scene:
 
         |    Call self.goToScene and pass in the sceneKey of the scene you want to go to,
-        |    and optionally, pass any data you want to next scene to receive in its enter method.
+        |    and optionally, pass any data you want the next scene to receive in its enter method.
 
     If you want to quit the program from your scene, call:
 
@@ -671,16 +683,20 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
                     falseButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR):
     """Puts up a text-based two-button modal dialog (typically Yes/No or OK/Cancel)
 
+    It can also be used to put up a single button alert dialog (with a typcial OK button)
+
     Parameters:
         |    theWindow - the window to draw in
         |    theRect - the rectangle of the dialog box in the application window
         |    prompt - prompt (title) string in the dialog box
+
     Optional keyword parameters:
         |    trueButtonText - text on the True button (defaults to 'OK')
         |    falseButtonText - text on the False button (defaults to 'Cancel')
         |       Note:  If falseButtonText is None or the empty string, the false button will not be drawn
         |              This way, you can present an "alert" box with only an 'OK' button
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
+
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
 
@@ -754,6 +770,8 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
 def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseButton):
     """Puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
 
+    It can also be used to put up a single button alert dialog (with a typcial OK button)
+
     Parameters:
         |    theWindow - the window to draw in
         |    oDialogImage - an Image object (from pygwidgets) with the background of the dialog box
@@ -814,12 +832,12 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
         |    theWindow - the window to draw in
         |    theRect - the rectangle of the dialog box in the application window
         |    prompt - prompt (title) string in the dialog box
+
     Optional keyword parameters:
         |    trueButtonText - text on the True button (defaults to 'OK')
         |    falseButtonText - text on the False button (defaults to 'Cancel')
-        |       Note:  If falseButtonText is None or the empty string, the false button will not be drawn
-        |              This way, you can present an "alert" box with only an 'OK' button
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
+
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
         |    userText - if above is True, then this contains the text that the user typed.
@@ -897,17 +915,16 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
 
     Parameters:
         |    theWindow - the window to draw in
-        |    oDialogImage - an Image object (from pygwidgets) with the background of the dialog box
+        |    oDialogImage - an Image object (from pygwidgets) containing the background of the dialog box
         |    oPromptText - a TextDisplay object (from pygwidgets) containing the prompt to display
         |    oAnswerText - an InputDisplay object (from pygwidgets) where the user types their answer
         |    oTrueButton - a CustomButton object (from pygwidgets) representing True or OK, etc.
         |    oFalseButton - a CustomButton object (from pygwidgets) representing False or Cancel, etc.
-        |       Note:  If oFalseButton is None or the empty string, the false button will not be drawn
-        |              This way, you can present an "alert" box with only an 'OK' button
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
+
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
-        |    userText - if above is True, then this contains the text that the user typed.
+        |    userText - if trueOrFalse above is True, then this contains the text that the user typed.
 
     """
     dialogImageRect = oDialogImage.getRect()
@@ -923,12 +940,12 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
                 sys.exit()
 
             if oAnswerText.handleEvent(event):
-                name = oAnswerText.getValue()
-                return True, name
+                userResponse = oAnswerText.getValue()
+                return True, userResponse
 
             if oTrueButton.handleEvent(event):
-                name = oAnswerText.getValue()
-                return True, name
+                userResponse = oAnswerText.getValue()
+                return True, userResponse
 
             if oFalseButton.handleEvent(event):
                 return False, None
