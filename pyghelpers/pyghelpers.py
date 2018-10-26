@@ -1113,3 +1113,4 @@ def closeFile(fileHandle):
 
     """
     fileHandle.close()
+
