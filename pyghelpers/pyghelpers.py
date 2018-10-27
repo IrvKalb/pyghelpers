@@ -15,17 +15,17 @@ pyghelpers contains the following classes:
 
 pyghelpers also contains the following functions:
 
-- textYesNoDialog - a text-based dialog box allowing for one or two answers (yes/no)
-- customYesNoDialog - a one or two answer dialog box with custom graphics
+- textYesNoDialog - a text-based dialog box allowing for one or two answers (yes/no, or just OK)
+- customYesNoDialog - a dialog box with custom graphics (yes/no, or just OK)
 - textAnswerDialog - a text-based dialog box allowing the user to enter a string
-- customAnswerDialog - a dialog box with custom graphics that allows the user to enter a string.
+- customAnswerDialog - a dialog box with custom graphics that allows the user to enter a string
 - fileExists - find out if a file at a given path exists
 - readFile - reads from a (text) file
-- writeFile - wirtes to a (text) file
+- writeFile - writes to a (text) file
 - openFileForWriting - opens a (text) file for writing line by line
-- writeALine - writes a text line to an open file
+- writeALine - writes a line of text to an open file
 - openFileForReading - opens a text file for reading line by line
-- readALine - reads a text line from an open file
+- readALine - reads a line of text from an open file
 - closeFile - closes an open file
 
 """
@@ -118,7 +118,7 @@ class CountUpTimer():
 
     1)  Create a CountUpTimer object:
 
-        myTimer = pyghelpers.CoutUpTimer()
+        myTimer = pyghelpers.CountUpTimer()
 
     2)  When you want the timer to start running, make this call:
 
@@ -213,7 +213,7 @@ class CountDownTimer():
 
     1)  Create a CountDownTimer object:
 
-        myTimer = pyghelpers.CoutDownTimer(60)   # start the timer at 60 seconds
+        myTimer = pyghelpers.CountDownTimer(60)   # start the timer at 60 seconds
 
     2)  When you want the timer to start running, make this call:
 
@@ -257,14 +257,14 @@ class CountDownTimer():
         self.callBack = callBack
 
     def start(self):
-        """Called to start the timer"""
+        """Start the timer running (starts at nStartingSeconds)"""
         secondsNow = time.time()
         self.secondsEnd = secondsNow + self.nStartingSeconds
         self.reachedZero = False
         self.running = True
 
     def getTime(self):
-        """Returns the elapsed time as a float"""
+        """Returns the elapsed time as a float number of seconds"""
         if self.running:
             secondsNow = time.time()
             secondsRemaining = self.secondsEnd - secondsNow
@@ -279,7 +279,7 @@ class CountDownTimer():
         return secondsRemaining  # returns a float
 
     def getTimeInSeconds(self):
-        """Returns the elapsed time as an integer"""
+        """Returns the elapsed time as an integer number of seconds"""
         nSeconds = self.getTime()
         nSeconds = int(nSeconds)
         return nSeconds
@@ -501,7 +501,9 @@ class Scene():
 
     Each scene must be created with a key (which is a unique string) to identify itself.
 
-    In the __init__ method of your Scene subclass, you will be passed in a window and a sceneKey.
+    The code creating a scene does so by instantiating a scene object from your scene subclass.
+    That code must pass in a windows to draw into, and a unique key to identify the scene.
+    In the __init__ method of your scene subclass, you will receive a window and a sceneKey.
     You must copy those into instance variables by starting your __init__ method like this:
 
         |    def __init__(self, window, sceneKey):
@@ -509,14 +511,21 @@ class Scene():
         |        self.sceneKey = sceneKey
         |        # Add any initialization you want to do here.
 
-    The following methods are called from the main loop when your scene is active.
-    Your code can/should override the methods shown below
+        When your scene is active, the SceneManager calls a standard set of methods in the current scene.
+        Therefore, all scenes must implement these methods (polymorphism):
 
-        |    enter
-        |    handleInputs   # must be overridden
-        |    update
-        |    draw           # must be overridden
-        |    leave
+           |    handleInputs  # called in every frame
+           |    draw          # called in every frame
+
+
+        The following methods can optionally be implemented in a scene.  If they are not
+        implemented, then the default version in the Scene subclass will be used.
+        (The Scene class' default versions do not do anything, they just return):
+
+           |    enter          # called once whenever the scene is entered
+           |    update         # called in every frame
+           |    leave          # called once whenever the scene is left
+
 
     When you want to go to a new scene:
 
@@ -582,8 +591,7 @@ class Scene():
     def leave(self):
         """This method is called whenever the user leaves a scene
 
-        Add any code you want to clean up scene before leaving
-        Override this method, and add any code you need to start or re-start the scene
+        Override this method, and add any code you need to clean up the scene before leaving
 
         """
         pass
@@ -594,7 +602,7 @@ class Scene():
 
 
     def goToScene(self, nextSceneKey, data=None):
-        """ Call this method whenever you want to go to a new scene
+        """Call this method whenever you want to go to a new scene
 
         Parameters:
             |    nextSceneKey - the scene key (string) of the scene to go to
@@ -684,19 +692,19 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
                     falseButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR):
     """Puts up a text-based two-button modal dialog (typically Yes/No or OK/Cancel)
 
-    It can also be used to put up a single button alert dialog (with a typcial OK button)
+    It can also be used to put up a single button alert dialog (typically with an OK button)
 
     Parameters:
         |    theWindow - the window to draw in
         |    theRect - the rectangle of the dialog box in the application window
-        |    prompt - prompt (title) string in the dialog box
+        |    prompt - prompt (title) string to be displayed in the dialog box
 
     Optional keyword parameters:
         |    trueButtonText - text on the True button (defaults to 'OK')
         |    falseButtonText - text on the False button (defaults to 'Cancel')
         |       Note:  If falseButtonText is None or the empty string, the false button will not be drawn
         |              This way, you can present an "alert" box with only an 'OK' button
-        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
+        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
 
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
@@ -781,7 +789,6 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
         |    oFalseButton - a CustomButton object (from pygwidgets) representing False or Cancel, etc.
         |       Note:  If oFalseButton is None or the empty string, the false button will not be drawn
         |              This way, you can present an "alert" box with only an 'OK' button
-        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
 
@@ -832,12 +839,12 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
     Parameters:
         |    theWindow - the window to draw in
         |    theRect - the rectangle of the dialog box in the application window
-        |    prompt - prompt (title) string in the dialog box
+        |    prompt - prompt (title) string to be displayed in the dialog box
 
     Optional keyword parameters:
         |    trueButtonText - text on the True button (defaults to 'OK')
         |    falseButtonText - text on the False button (defaults to 'Cancel')
-        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
+        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
 
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
@@ -921,7 +928,6 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
         |    oAnswerText - an InputDisplay object (from pygwidgets) where the user types their answer
         |    oTrueButton - a CustomButton object (from pygwidgets) representing True or OK, etc.
         |    oFalseButton - a CustomButton object (from pygwidgets) representing False or Cancel, etc.
-        |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200)
 
     Returns:
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
@@ -981,7 +987,7 @@ import os
 # Functions for checking if a file exists, read from a file, write to a file
 
 def fileExists(filePath):
-    """Check if at a given path exists
+    """Check if a file at a given path exists
 
     Parameters:
         |    filePath - a path to a file (typically a relative path)
@@ -995,6 +1001,8 @@ def fileExists(filePath):
 
 def writeFile(filePath, textToWrite):
     """Writes a string to a file
+
+    The text can contain newline characters which will indicate separate lines
 
     Parameters:
         |    filePath - a path to a file (typically a relative path)
@@ -1038,7 +1046,7 @@ def openFileForWriting(filePath):
         |    filePath - a path to a file (typically a relative path)
     Returns:
         |    fileHandle - a file handle for the file that was opened
-        |                 (this should be used in sutsequent calls to writeALine and closeFile)
+        |                 (this should be used in subsequent calls to writeALine and closeFile)
 
     """
 
