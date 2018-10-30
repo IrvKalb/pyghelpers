@@ -5,6 +5,7 @@ pyghelpers is pronounced "pig helpers".
 
 Developed by Irv Kalb  -  Irv at furrypants.com
 
+
 pyghelpers contains the following classes:
 
 - Timer - a simple timer
