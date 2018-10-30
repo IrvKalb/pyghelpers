@@ -4,7 +4,6 @@
 
 # 1 - Import packages
 import pygame
-import pyghelpers
 from pygame.locals import *
 from Constants import *
 from SceneSplash import *

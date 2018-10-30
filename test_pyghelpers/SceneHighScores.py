@@ -6,9 +6,9 @@ import pygame
 import sys
 from pygame.locals import *
 import pygwidgets
-import pyghelpers
+from pyghelpers import *
 from Constants import *
-from FileReadWrite import *
+#from FileReadWrite import *
 import json  # Write and read the data file in JSON format
 
 def showCustomAnswerDialog(theWindow, theText):

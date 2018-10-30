@@ -8,7 +8,6 @@ install:
 
 clean:
 	rm -fr __pycache__ dist MANIFEST *.egg-info src/__pycache__ src/*.egg-info
-
 	
 upload:
 	twine upload dist/* --verbose
@@ -17,4 +16,4 @@ uploadtest:
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/* 
 	
 installtest:
-	pip install --index-url https://test.pypi.org/simple/ pyghelpers
+	pip install --user --index-url https://test.pypi.org/simple/ pyghelpers
