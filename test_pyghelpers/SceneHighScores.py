@@ -6,9 +6,8 @@ import pygame
 import sys
 from pygame.locals import *
 import pygwidgets
-from pyghelpers import *
+import pyghelpers
 from Constants import *
-#from FileReadWrite import *
 import json  # Write and read the data file in JSON format
 
 def showCustomAnswerDialog(theWindow, theText):
@@ -47,10 +46,10 @@ class SceneHighScores(pyghelpers.Scene):
         # The result will look like:
         # [[name, score], [name, score], [name, score] ...]
         # and will always be kept in order of the score (highest to lowest)
-        if not fileExists(SceneHighScores.DATA_FILE_PATH):
+        if not pyghelpers.fileExists(SceneHighScores.DATA_FILE_PATH):
             self.setEmptyHighScores()
         else:
-            data = readFile(SceneHighScores.DATA_FILE_PATH)
+            data = pyghelpers.readFile(SceneHighScores.DATA_FILE_PATH)
             # read in all the data in json format, converts to a list of lists
             self.scoresList = json.loads(data)
 
@@ -79,7 +78,7 @@ class SceneHighScores(pyghelpers.Scene):
             ['-----', 0],
             ['-----', 0]]
 
-        writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
+        pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
         self.showHighScores()
 
     def enter(self, data):
