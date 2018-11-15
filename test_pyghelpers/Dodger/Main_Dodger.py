@@ -10,12 +10,16 @@ from SceneSplash import *
 from ScenePlay import *
 from SceneHighScores import *
 
+
 # 2 - Define constants
 FRAMES_PER_SECOND = 40
 
 # 3 - Initialize the world
 pygame.init()
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+# The next line is here just in case you are running from the command line
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # 4 - Load assets: image(s), sounds,  etc.
 # Create instances of all scenes.  Specify the window and

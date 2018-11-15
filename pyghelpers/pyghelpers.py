@@ -5,6 +5,8 @@ pyghelpers is pronounced "pig helpers".
 
 Developed by Irv Kalb  -  Irv at furrypants.com
 
+Full documentation at:   https://pyghelpers.readthedocs.io/en/latest/
+
 
 pyghelpers contains the following classes:
 

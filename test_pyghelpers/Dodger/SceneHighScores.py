@@ -115,7 +115,7 @@ class SceneHighScores(pyghelpers.Scene):
                 # Show the new high scores table
                 self.showHighScores()
                 # Write out updated file of high scores
-                writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
+                pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
 
 
     def showHighScores(self):

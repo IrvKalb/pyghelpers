@@ -19,7 +19,6 @@ FRAMES_PER_SECOND = 30
 
 def showCustomAlertDialog(theWindow, theText):
     oDialogBackground = pygwidgets.Image(theWindow, (60, 120), 'images/dialog.png')
-    print(oDialogBackground.rect)
     oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText, \
                                 width=WINDOW_WIDTH, justified='center', fontSize=36)
     oOKButton = pygwidgets.CustomButton(theWindow, (355, 265), \
