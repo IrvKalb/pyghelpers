@@ -137,7 +137,8 @@ class ScenePlay(pyghelpers.Scene):
             self.oGoodieMgr.update()
 
             # Check if the player has hit any of the goodies
-            if self.oGoodieMgr.hasPlayerHitGoodie(self.oPlayer):
+            #print('In ScenePlay, self.oPlayer', self.oPlayer)
+            if self.oGoodieMgr.hasPlayerHitGoodie(self.oPlayer):    # was:     self.oPlayer
                 self.score = self.score + POINTS_FOR_GOODIE   # add points for each goodie.
                 self.dingSound.play()
             self.scoreText.setValue(str(self.score))

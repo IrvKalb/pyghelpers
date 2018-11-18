@@ -30,7 +30,7 @@ class Baddie():
     def draw(self):
         self.window.blit(self.image, self.rect)
 
-    def collide(self, playerRect):
+    def collidesWith(self, playerRect):
         if self.rect.colliderect(playerRect):
             return True
         else:
@@ -69,7 +69,8 @@ class BaddieMgr():
                 self.baddiesList.remove(baddie)
                 nBaddiesRemoved = nBaddiesRemoved + 1
 
-        return nBaddiesRemoved
+        return nBaddiesRemoved         
+
 
     def draw(self):
         for baddie in self.baddiesList:
@@ -77,7 +78,7 @@ class BaddieMgr():
 
     def hasPlayerHitBaddie(self, playerRect):
         for baddie in self.baddiesList:
-            if baddie.collide(playerRect):
+            if baddie.collidesWith(playerRect):
                 return True
 
         return False

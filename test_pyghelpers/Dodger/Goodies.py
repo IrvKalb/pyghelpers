@@ -45,7 +45,7 @@ class Goodie():
     def draw(self):
         self.window.blit(self.image, self.rect)
 
-    def collide(self, playerRect):
+    def collidesWith(self, playerRect):
         if self.rect.colliderect(playerRect):
             return True
         else:
@@ -84,7 +84,7 @@ class GoodieMgr():
         for goodie in self.goodiesList:
             deleteMe = goodie.update()
             if deleteMe:
-                self.goodiesList.remove(goodie)
+                self.goodiesList.remove(goodie)         
 
     def draw(self):
         for goodie in self.goodiesList:
@@ -92,7 +92,8 @@ class GoodieMgr():
 
     def hasPlayerHitGoodie(self, playerRect):
         for goodie in self.goodiesList:
-            if goodie.collide(playerRect):
+            if goodie.collidesWith(playerRect):
+                print('player collided with Goodie')
                 self.goodiesList.remove(goodie)  # remove this goodie from the list
                 return True
 
