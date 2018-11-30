@@ -17,6 +17,7 @@ WINDOW_HEIGHT = 480
 FRAMES_PER_SECOND = 30
 
 
+
 def showCustomAlertDialog(theWindow, theText):
     oDialogBackground = pygwidgets.Image(theWindow, (60, 120), 'images/dialog.png')
     oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText, \
