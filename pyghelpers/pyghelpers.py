@@ -258,6 +258,7 @@ class CountDownTimer():
         self.stopAtZero = stopAtZero
         self.nickname = nickname
         self.callBack = callBack
+        self.reachedZero = False
 
     def start(self):
         """Start the timer running (starts at nStartingSeconds)"""
