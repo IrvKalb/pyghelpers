@@ -40,6 +40,9 @@ import pygwidgets
 import sys
 import time
 
+PYGHELPERS_NSECONDS_PER_HOUR = 60 * 60
+PYGHELPERS_NSECONDS_PER_MINUTE = 60
+
 # Timer classes:
 #    Timer (simple)
 #    CountUpTimer
@@ -148,10 +151,12 @@ class CountUpTimer():
         | none
 
     """
-    NSECONDS_PER_HOUR = 60 * 60
-    NSECONDS_PER_MINUTE = 60
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """ Resets the timer.  Can be called to start the timer - for example to play a game multiple times"""
         self.running = False
         self.savedSecondsElapsed = 0
 
@@ -176,18 +181,31 @@ class CountUpTimer():
         nSeconds = int(nSeconds)
         return nSeconds
 
-    def getTimeInHHMMSS(self):
-        """Returns the elapsed time as a HH:MM:SS formatted string"""
+    def getTimeInHHMMSS(self, nMillisecondsDigits=0):
+        """Returns the elapsed time as a HH:MM:SS formatted string
+
+        Parameters:
+
+        Optional keyword parameters:
+            | nMillisecondsDigits - number of milliseconds digits to include (defaults to 0)
+            |    If specified, returned string will look like:    HH:MM:SS.mmmm
+
+        """
+             
         nSeconds = self.getTime()
+        if nMillisecondsDigits > 0:
+           millisecondsDigits = nSeconds % 1
+           millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))                    
+
         nSeconds = int(nSeconds)
         output = ''
-        if nSeconds > CountUpTimer.NSECONDS_PER_HOUR:
-            nHours = nSeconds // CountUpTimer.NSECONDS_PER_HOUR
-            nSeconds = nSeconds - (nHours * CountUpTimer.NSECONDS_PER_HOUR)
-            output = str(nSeconds) + ":"
-        if nSeconds > CountUpTimer.NSECONDS_PER_MINUTE:
-            nMinutes = nSeconds // CountUpTimer.NSECONDS_PER_MINUTE
-            nSeconds = nSeconds - (nMinutes * CountUpTimer.NSECONDS_PER_MINUTE)
+        if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
+            nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
+            nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
+            output = str(nHours) + ":"
+        if (nHours > 0) or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
+            nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
+            nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
             if (output != '') and (nMinutes < 10):
                 output = output + '0' + str(nMinutes) + ":"
             else:
@@ -196,6 +214,9 @@ class CountUpTimer():
             output = output + '0' + str(nSeconds)
         else:
             output = output + str(nSeconds)
+            
+        if nMillisecondsDigits > 0:
+            output = output + "." + str(millisecondsDigitsAsInteger)
         return output
 
     def stop(self):
@@ -248,16 +269,20 @@ class CountDownTimer():
 
 
     """
-    NSECONDS_PER_HOUR = 60 * 60
-    NSECONDS_PER_MINUTE = 60
 
     def __init__(self, nStartingSeconds, stopAtZero=True, nickname=None, callBack=None):
-        self.running = False
-        self.secondsSavedRemaining = 0
-        self.nStartingSeconds = nStartingSeconds
-        self.stopAtZero = stopAtZero
         self.nickname = nickname
         self.callBack = callBack
+        self.nSavedStartingSeconds = nStartingSeconds
+        self.savedStopAtZero = stopAtZero
+        self.reset()
+
+    def reset(self):
+        """ Resets the timer.  Can be called to start the timer - for example to play a game multiple times"""
+        self.nStartingSeconds = self.nSavedStartingSeconds
+        self.stopAtZero = self.savedStopAtZero
+        self.running = False
+        self.secondsSavedRemaining = 0
         self.reachedZero = False
 
     def start(self):
@@ -288,18 +313,32 @@ class CountDownTimer():
         nSeconds = int(nSeconds)
         return nSeconds
 
-    def getTimeInHHMMSS(self):
-        """Returns the elapsed time as a HH:MM:SS formatted string"""
+    def getTimeInHHMMSS(self, nMillisecondsDigits=0):
+        """Returns the elapsed time as a HH:MM:SS formatted string
+
+        Parameters:
+
+        Optional keyword parameters:
+            | nMillisecondsDigits - number of milliseconds digits to include (defaults to 0)
+            |    If specified, returned string will look like:    HH:MM:SS.mmmm
+
+        """
+             
         nSeconds = self.getTime()
+        if nMillisecondsDigits > 0:
+           millisecondsDigits = nSeconds % 1
+           millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))                    
+
         nSeconds = int(nSeconds)
         output = ''
-        if nSeconds > CountDownTimer.NSECONDS_PER_HOUR:
-            nHours = nSeconds // CountDownTimer.NSECONDS_PER_HOUR
-            nSeconds = nSeconds - (nHours * CountDownTimer.NSECONDS_PER_HOUR)
-            output = str(nSeconds) + ":"
-        if nSeconds > CountDownTimer.NSECONDS_PER_MINUTE:
-            nMinutes = nSeconds // CountDownTimer.NSECONDS_PER_MINUTE
-            nSeconds = nSeconds - (nMinutes * CountDownTimer.NSECONDS_PER_MINUTE)
+        if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
+            nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
+            nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
+            output = str(nHours) + ":"
+        if (nHours > 0) or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
+        #if nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE:
+            nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
+            nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
             if (output != '') and (nMinutes < 10):
                 output = output + '0' + str(nMinutes) + ":"
             else:
@@ -308,6 +347,8 @@ class CountDownTimer():
             output = output + '0' + str(nSeconds)
         else:
             output = output + str(nSeconds)
+        if nMillisecondsDigits > 0:
+            output = output + "." + str(millisecondsDigitsAsInteger)
         return output
 
     def stop(self):
