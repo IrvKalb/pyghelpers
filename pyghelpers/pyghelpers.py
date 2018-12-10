@@ -194,31 +194,37 @@ class CountUpTimer():
              
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
-           millisecondsDigits = nSeconds % 1
-           millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))                    
+            millisecondsDigits = nSeconds % 1
+            millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))
 
         nSeconds = int(nSeconds)
         output = ''
         if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
+            showingHours = True
             nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
             nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
             output = str(nHours) + ":"
-        if (nHours > 0) or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
+        else:
+            showingHours = False
+        if showingHours or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
             nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
             nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
-            if (output != '') and (nMinutes < 10):
+            if showingHours and (nMinutes < 10):
                 output = output + '0' + str(nMinutes) + ":"
             else:
                 output = output + str(nMinutes) + ":"
-        if (output != '') and (nSeconds < 10):
+            showingMinutes = True
+        else:
+            showingMinutes = False
+        if showingMinutes and (nSeconds < 10):
             output = output + '0' + str(nSeconds)
         else:
             output = output + str(nSeconds)
-            
+
         if nMillisecondsDigits > 0:
             output = output + "." + str(millisecondsDigitsAsInteger)
         return output
-
+    
     def stop(self):
         """Stops the timer from running"""
         self.running = False
@@ -326,30 +332,37 @@ class CountDownTimer():
              
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
-           millisecondsDigits = nSeconds % 1
-           millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))                    
+            millisecondsDigits = nSeconds % 1
+            millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))
 
         nSeconds = int(nSeconds)
         output = ''
         if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
+            showingHours = True
             nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
             nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
             output = str(nHours) + ":"
-        if (nHours > 0) or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
-        #if nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE:
+        else:
+            showingHours = False
+        if showingHours or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
             nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
             nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
-            if (output != '') and (nMinutes < 10):
+            if showingHours and (nMinutes < 10):
                 output = output + '0' + str(nMinutes) + ":"
             else:
                 output = output + str(nMinutes) + ":"
-        if (output != '') and (nSeconds < 10):
+            showingMinutes = True
+        else:
+            showingMinutes = False
+        if showingMinutes and (nSeconds < 10):
             output = output + '0' + str(nSeconds)
         else:
             output = output + str(nSeconds)
+
         if nMillisecondsDigits > 0:
             output = output + "." + str(millisecondsDigitsAsInteger)
         return output
+
 
     def stop(self):
         """Stops the timer from running"""
