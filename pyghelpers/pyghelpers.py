@@ -120,6 +120,8 @@ class CountUpTimer():
     """
     This class is used to create a Timer that counts up (starting at zero).
 
+    Its intended use is where you want to continuously display the time on screen (using a DisplayText object).
+
     Typical use:
 
     1)  Create a CountUpTimer object:
@@ -130,7 +132,7 @@ class CountUpTimer():
 
         myTimer.start()
 
-        This method also be made to restart the timer.
+        This method can also be called to restart the timer.
 
     3)  Whenever you want to get the current time (in seconds since start), you can call any of:
 
@@ -153,32 +155,33 @@ class CountUpTimer():
     """
 
     def __init__(self):
-        self.reset()
-
-    def reset(self):
-        """ Resets the timer.  Can be called to start the timer - for example to play a game multiple times"""
         self.running = False
-        self.savedSecondsElapsed = 0
+        self.savedSecondsElapsed = '0'
+        self.secondsStart = 0  # safeguard
 
     def start(self):
-        """Start the timer running (starts at zero)"""
+        """Start the timer running (starts at zero).  Can be called to restart the timer, for example to play a game multiple times"""
         self.secondsStart = time.time()  # get the current seconds, and save it away
         self.running = True
-        self.savedSecondsElapsed = 0
+        self.savedSecondsElapsed = '0'
 
     def getTime(self):
         """Returns the time elapsed as a float"""
-        if self.running:
-            secondsNow = time.time()
-            secondsElapsed = secondsNow - self.secondsStart
-        else:
-            secondsElapsed = self.savedSecondsElapsed
+        if not self.running:
+            return self.savedSecondsElapsed  # do nothing
+        
+        secondsNow = time.time()
+        secondsElapsed = secondsNow - self.secondsStart
+        self.savedSecondsElapsed = secondsElapsed
         return secondsElapsed  # returns a float
 
     def getTimeInSeconds(self):
         """Returns the time elapsed as an integer number of seconds"""
+        if not self.running:
+            return self.savedSecondsElapsed  # do nothing
         nSeconds = self.getTime()
         nSeconds = int(nSeconds)
+        self.savedSecondsElapsed = nSeconds
         return nSeconds
 
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
@@ -191,7 +194,9 @@ class CountUpTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmmm
 
         """
-             
+        if not self.running:
+            return self.savedSecondsElapsed  # do nothing
+        
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
             millisecondsDigits = nSeconds % 1
@@ -223,13 +228,13 @@ class CountUpTimer():
 
         if nMillisecondsDigits > 0:
             output = output + "." + str(millisecondsDigitsAsInteger)
+
+        self.savedSecondsElapsed = output
         return output
     
     def stop(self):
         """Stops the timer from running"""
         self.running = False
-        secondsNow = time.time()
-        self.savedSecondsElapsed = secondsNow - self.secondsStart
 
 
 #
@@ -238,6 +243,9 @@ class CountUpTimer():
 class CountDownTimer():
     """
     This class is used to create a Timer that counts down from a given starting number of seconds.
+
+    Its intended use is where you want to continuously display the time on screen (using a DisplayText object).
+
 
     Typical use:
 
@@ -277,18 +285,13 @@ class CountDownTimer():
     """
 
     def __init__(self, nStartingSeconds, stopAtZero=True, nickname=None, callBack=None):
+        self.nStartingSeconds = nStartingSeconds
+        self.stopAtZero = stopAtZero
         self.nickname = nickname
         self.callBack = callBack
-        self.nSavedStartingSeconds = nStartingSeconds
-        self.savedStopAtZero = stopAtZero
-        self.reset()
 
-    def reset(self):
-        """ Resets the timer.  Can be called to start the timer - for example to play a game multiple times"""
-        self.nStartingSeconds = self.nSavedStartingSeconds
-        self.stopAtZero = self.savedStopAtZero
         self.running = False
-        self.secondsSavedRemaining = 0
+        self.secondsSavedRemaining = '0'
         self.reachedZero = False
 
     def start(self):
@@ -300,23 +303,27 @@ class CountDownTimer():
 
     def getTime(self):
         """Returns the elapsed time as a float number of seconds"""
-        if self.running:
-            secondsNow = time.time()
-            secondsRemaining = self.secondsEnd - secondsNow
-            if self.stopAtZero and (secondsRemaining <= 0):
-                secondsRemaining = 0
-                self.running = False
-                self.reachedZero = True
-                if self.callBack is not None:
-                    self.callBack(self.nickname)
-        else:
-            secondsRemaining = self.secondsSavedRemaining
+        if not self.running:
+            return self.secondsSavedRemaining
+        
+        secondsNow = time.time()
+        secondsRemaining = self.secondsEnd - secondsNow
+        if self.stopAtZero and (secondsRemaining <= 0):
+            secondsRemaining = 0
+            self.running = False
+            self.reachedZero = True
+
+        self.secondsSavedRemaining = secondsRemaining
         return secondsRemaining  # returns a float
 
     def getTimeInSeconds(self):
         """Returns the elapsed time as an integer number of seconds"""
+        if not self.running:
+            return self.secondsSavedRemaining
+        
         nSeconds = self.getTime()
         nSeconds = int(nSeconds)
+        self.secondsSavedRemaining = nSeconds
         return nSeconds
 
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
@@ -329,7 +336,10 @@ class CountDownTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmmm
 
         """
-             
+
+        if not self.running:
+            return self.secondsSavedRemaining
+        
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
             millisecondsDigits = nSeconds % 1
@@ -361,17 +371,24 @@ class CountDownTimer():
 
         if nMillisecondsDigits > 0:
             output = output + "." + str(millisecondsDigitsAsInteger)
+
+        self.secondsSavedRemaining = output
         return output
 
 
     def stop(self):
         """Stops the timer from running"""
         self.running = False
-        secondsNow = time.time()
-        self.secondsSavedRemaining = self.secondsEnd - secondsNow
+
+        # could use the following for a pause/continue later
+        #secondsNow = time.time()
+        #self.secondsSavedRemaining = self.secondsEnd - secondsNow
 
     def ended(self):
-        """Call to see if the timer has reached zero"""
+        """Call to see if the timer has reached zero. Should be called every time through the loop"""
+        if self.reachedZero:
+            if self.callBack is not None:
+                self.callBack(self.nickname)
         return self.reachedZero
 
 
