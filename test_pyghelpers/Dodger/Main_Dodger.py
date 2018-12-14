@@ -2,9 +2,15 @@
 #
 # Instantiates 3 scenes, creates and starts the Scene Manager
 
+import sys
+import os
+
+# These lines are here just in case you are running from the command line
+currentPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(currentPath)
+
 # 1 - Import packages
 import pygame
-import os
 from pygame.locals import *
 from Constants import *
 from SceneSplash import *
@@ -18,9 +24,6 @@ FRAMES_PER_SECOND = 40
 # 3 - Initialize the world
 pygame.init()
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-
-# The next line is here just in case you are running from the command line
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # 4 - Load assets: image(s), sounds,  etc.
 # Create instances of all scenes.  Specify the window and

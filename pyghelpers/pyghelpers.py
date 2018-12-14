@@ -185,13 +185,13 @@ class CountUpTimer():
         return nSeconds
 
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
-        """Returns the elapsed time as a HH:MM:SS formatted string
+        """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
         Parameters:
 
         Optional keyword parameters:
             | nMillisecondsDigits - number of milliseconds digits to include (defaults to 0)
-            |    If specified, returned string will look like:    HH:MM:SS.mmmm
+            |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
         if not self.running:
@@ -199,8 +199,14 @@ class CountUpTimer():
         
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
-            millisecondsDigits = nSeconds % 1
-            millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))
+            timeAsString = str(nSeconds)
+            timeAsList = timeAsString.split('.')
+            msAsString = timeAsList[1]  # use decimal digits
+
+            if len(msAsString) > nMillisecondsDigits: # typical case t
+                requestedMsDigits = msAsString[: nMillisecondsDigits]
+            else:  # not enough digits, go to the end
+                requestedMsDigits = msAsString[ : ]
 
         nSeconds = int(nSeconds)
         output = ''
@@ -227,7 +233,7 @@ class CountUpTimer():
             output = output + str(nSeconds)
 
         if nMillisecondsDigits > 0:
-            output = output + "." + str(millisecondsDigitsAsInteger)
+            output = output + "." + requestedMsDigits
 
         self.savedSecondsElapsed = output
         return output
@@ -309,7 +315,7 @@ class CountDownTimer():
         secondsNow = time.time()
         secondsRemaining = self.secondsEnd - secondsNow
         if self.stopAtZero and (secondsRemaining <= 0):
-            secondsRemaining = 0
+            secondsRemaining = 0.0
             self.running = False
             self.reachedZero = True
 
@@ -327,23 +333,28 @@ class CountDownTimer():
         return nSeconds
 
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
-        """Returns the elapsed time as a HH:MM:SS formatted string
+        """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
         Parameters:
 
         Optional keyword parameters:
             | nMillisecondsDigits - number of milliseconds digits to include (defaults to 0)
-            |    If specified, returned string will look like:    HH:MM:SS.mmmm
+            |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
-
         if not self.running:
-            return self.secondsSavedRemaining
-        
+            return self.savedSecondsElapsed  # do nothing
+
         nSeconds = self.getTime()
         if nMillisecondsDigits > 0:
-            millisecondsDigits = nSeconds % 1
-            millisecondsDigitsAsInteger = int(millisecondsDigits * (10 ** nMillisecondsDigits))
+            timeAsString = str(nSeconds)
+            timeAsList = timeAsString.split('.')
+            msAsString = timeAsList[1]  # use decimal digits
+
+            if len(msAsString) > nMillisecondsDigits:  # typical case t
+                requestedMsDigits = msAsString[: nMillisecondsDigits]
+            else:  # not enough digits, go to the end
+                requestedMsDigits = msAsString[:]
 
         nSeconds = int(nSeconds)
         output = ''
@@ -370,9 +381,9 @@ class CountDownTimer():
             output = output + str(nSeconds)
 
         if nMillisecondsDigits > 0:
-            output = output + "." + str(millisecondsDigitsAsInteger)
+            output = output + "." + requestedMsDigits
 
-        self.secondsSavedRemaining = output
+        self.savedSecondsElapsed = output
         return output
 
 
@@ -387,9 +398,12 @@ class CountDownTimer():
     def ended(self):
         """Call to see if the timer has reached zero. Should be called every time through the loop"""
         if self.reachedZero:
+            self.reachedZero = False  # reset
             if self.callBack is not None:
                 self.callBack(self.nickname)
-        return self.reachedZero
+            return True
+        else:
+            return False
 
 
 #

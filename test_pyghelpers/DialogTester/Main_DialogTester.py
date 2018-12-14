@@ -1,9 +1,15 @@
-# Testing program for 4 dialog boxes
+# Testing program for 6 dialog boxes
+
+import sys
+import os
+
+# These lines are here just in case you are running from the command line
+currentPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(currentPath)
 
 # 1 - Import packages
 import pygame
 from pygame.locals import *
-import sys
 import random
 import pygwidgets
 import pyghelpers
