@@ -14,7 +14,7 @@ setup(
     install_requires=[
         'pygame>=1.9',
         'pygwidgets>=0.9',        
-        ]
+        ],
     keywords="Timer classes, Scene and SceneMgr classes, Dialogs, file IO functions",
     classifiers=[
         "Programming Language :: Python :: 3",
