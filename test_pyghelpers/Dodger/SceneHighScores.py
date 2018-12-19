@@ -30,6 +30,25 @@ def showCustomAnswerDialog(theWindow, theText):
                                     oPromptDisplayText, oUserInputText, oYesButton, oNoButton)
     return choiceAsBoolean, userAnswer
 
+def showCustomResetDialog(theWindow, theText):
+    oDialogBackground = pygwidgets.Image(theWindow, (35, 450), 'images/dialog.png')
+    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 480), theText, \
+                                width=WINDOW_WIDTH, justified='center', fontSize=36)
+    oNoButton = pygwidgets.CustomButton(theWindow, (65, 595), \
+                                        'images/cancelNormal.png',\
+                                        over='images/cancelOver.png',\
+                                        down='images/cancelDown.png',\
+                                        disabled='images/cancelDisabled.png')
+    oYesButton = pygwidgets.CustomButton(theWindow, (330, 595), \
+                                        'images/okNormal.png',\
+                                        over='images/okOver.png',\
+                                        down='images/okDown.png',\
+                                        disabled='images/okDisabled.png')
+    choiceAsBoolean = pyghelpers.customYesNoDialog(theWindow, oDialogBackground, \
+                                    oPromptDisplayText, oYesButton, oNoButton)
+    return choiceAsBoolean
+
+
 class SceneHighScores(pyghelpers.Scene):
     DATA_FILE_PATH = 'HighScores.txt'
     N_HIGH_SCORES = 10
@@ -58,9 +77,25 @@ class SceneHighScores(pyghelpers.Scene):
         self.namesField = pygwidgets.DisplayText(self.window, (260, 84), '', \
                                 fontSize=48, textColor=BLACK, width=300, justified='left')
 
-        self.quitButton = pygwidgets.TextButton(self.window, (30, 650), 'Quit')
-        self.resetScoresButton = pygwidgets.TextButton(self.window, (240, 650), 'Reset high scores')
-        self.startNewGameButton = pygwidgets.TextButton(self.window, (450, 650), 'Start new game')
+        self.quitButton = pygwidgets.CustomButton(self.window, (30, 650), \
+                                                   up='images/quitNormal.png',\
+                                                   down='images/quitDown.png',\
+                                                   over='images/quitOver.png',\
+                                                   disabled='images/quitDisabled.png')
+
+        #self.resetScoresButton = pygwidgets.TextButton(self.window, (240, 650), 'Reset high scores')
+
+        self.resetScoresButton = pygwidgets.CustomButton(self.window, (240, 650), \
+                                                   up='images/resetNormal.png',\
+                                                   down='images/resetDown.png',\
+                                                   over='images/resetOver.png',\
+                                                   disabled='images/resetDisabled.png')
+        #self.startNewGameButton = pygwidgets.TextButton(self.window, (450, 650), 'Start new game')
+        self.startNewGameButton = pygwidgets.CustomButton(self.window, (450, 650), \
+                                                   up='images/startNewNormal.png',\
+                                                   down='images/startNewDown.png',\
+                                                   over='images/startNewOver.png',\
+                                                   disabled='images/startNewDisabled.png')
 
         self.showHighScores()
 
@@ -139,8 +174,10 @@ class SceneHighScores(pyghelpers.Scene):
                 self.quit()
 
             elif self.resetScoresButton.handleEvent(event):
-                confirmed = pyghelpers.textYesNoDialog(self.window, (35, 450, DIALOG_BOX_WIDTH, 150), \
-                                              "Are you sure you want to RESET the high scores?")
+                #confirmed = pyghelpers.textYesNoDialog(self.window, (35, 450, DIALOG_BOX_WIDTH, 150), \
+                #                              "Are you sure you want to RESET the high scores?")
+                confirmed = showCustomResetDialog(self.window, \
+                                                  "Are you sure you want to \nRESET the high scores?")
                 if confirmed:
                     self.setEmptyHighScores()
 

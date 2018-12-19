@@ -15,9 +15,25 @@ class SceneSplash(pyghelpers.Scene):
         self.sceneKey = sceneKey
 
         self.backgroundImage = pygwidgets.Image(self.window, (0, 0), "images/splashBackground.jpg")
-        self.startButton = pygwidgets.TextButton(self.window, (250, 500), 'Start', enterToActivate=True)
-        self.quitButton = pygwidgets.TextButton(self.window, (30, 650), 'Quit')
-        self.highScoresButton = pygwidgets.TextButton(self.window, (450, 650), 'Show high scores')
+        
+        self.startButton = pygwidgets.CustomButton(self.window, (250, 500), \
+                                                   up='images/startNormal.png',\
+                                                   down='images/startDown.png',\
+                                                   over='images/startOver.png',\
+                                                   disabled='images/startDisabled.png',\
+                                                   enterToActivate=True)
+
+        self.quitButton = pygwidgets.CustomButton(self.window, (30, 650), \
+                                                   up='images/quitNormal.png',\
+                                                   down='images/quitDown.png',\
+                                                   over='images/quitOver.png',\
+                                                   disabled='images/quitDisabled.png')
+
+        self.highScoresButton = pygwidgets.CustomButton(self.window, (360, 650), \
+                                                   up='images/gotoHighScoresNormal.png',\
+                                                   down='images/gotoHighScoresDown.png',\
+                                                   over='images/gotoHighScoresOver.png',\
+                                                   disabled='images/gotoHighScoresDisabled.png')
 
     def handleInputs(self, events, keyPressedList):
         for event in events:
