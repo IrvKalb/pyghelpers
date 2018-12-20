@@ -2,15 +2,13 @@
 #
 # Instantiates 3 scenes, creates and starts the Scene Manager
 
-import sys
-import os
-
-# These lines are here just in case you are running from the command line
-#currentPath = os.path.dirname(os.path.abspath(__file__))
-#sys.path.append(currentPath)
-#os.chdir(currentPath)
 
 # 1 - Import packages
+import os
+import sys
+# The next line is here just in case you are running from the command line
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 import pygame
 import pyghelpers
 from pygame.locals import *

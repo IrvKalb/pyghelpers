@@ -882,7 +882,6 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
         |    trueOrFalse - True means true button was pressed, False means false button was pressed
 
     """
-    dialogImageRect = oDialogImage.getRect()
     hideFalseButton = (oFalseButton is None) or (oFalseButton == '')
     showFalseButton = not hideFalseButton
 
@@ -945,7 +944,6 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
     dialogTop = theRect[1]
     dialogWidth = theRect[2]
     dialogHeight = theRect[3]
-    frameRect = pygame.Rect(dialogLeft + 1, dialogTop + 1, dialogWidth - 2, dialogHeight - 2)
     INSET = 30 # inset buttons from the edges of the dialog box
 
     promptText = pygwidgets.DisplayText(theWindow, (dialogLeft, dialogTop + 30), prompt,
@@ -1023,7 +1021,6 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
         |    userText - if trueOrFalse above is True, then this contains the text that the user typed.
 
     """
-    dialogImageRect = oDialogImage.getRect()
 
     # 6 - Loop forever
     while True:
@@ -1111,14 +1108,13 @@ def readFile(filePath):
         |    filePath - a path to a file (typically a relative path)
     Returns:
         |    textRead - a string contaning the contents of the file
-        |    Note: If the file does not exist, you will get an error message printed
-        |          and the function will return the empty string
+        |    Note: If the file does not exist, an exception will be raised
 
     """
 
     if not fileExists(filePath):
-        print('The file, ' + filePath + ' does not exist - cannot read it.')
-        return ''
+        raise Exception("The file '" + filePath + \
+                            "' does not exist - cannot read it.")
 
     fileHandle = open(filePath, 'r')
     data = fileHandle.read()
@@ -1167,8 +1163,8 @@ def openFileForReading(filePath):
 
     """
     if not fileExists(filePath):
-        print('The file, ' + filePath + ' does not exist - cannot read it.')
-        return ''
+        raise Exception("The file '" + filePath + \
+                            "' does not exist - cannot be opened for reading.")
 
     fileHandle = open(filePath, 'r')
     return fileHandle

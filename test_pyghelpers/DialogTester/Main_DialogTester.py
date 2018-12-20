@@ -1,13 +1,11 @@
 # Testing program for 6 dialog boxes
-
-import sys
-import os
-
-# These lines are here just in case you are running from the command line
-currentPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(currentPath)
+#  By Irv Kalb
 
 # 1 - Import packages
+import os
+import sys
+# The next line is here just in case you are running from the command line
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import pygame
 from pygame.locals import *
 import random
