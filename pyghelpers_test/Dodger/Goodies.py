@@ -9,7 +9,7 @@ class Goodie():
     MAX_SIZE = 41  # max plus one
     MIN_SPEED = 1
     MAX_SPEED = 9  # max plus one
-    IMAGE = pygame.image.load('images/goodie.png')
+    GOODIE_IMAGE = pygame.image.load('images/goodie.png')  # load the image once
     RIGHT = 'right'
     LEFT = 'left'
 
@@ -28,7 +28,7 @@ class Goodie():
             self.speed = random.randrange(Goodie.MIN_SPEED, Goodie.MAX_SPEED)
 
 
-        self.image = pygwidgets.Image(self.window, (self.x, self.y), 'images/goodie.png')
+        self.image = pygwidgets.Image(self.window, (self.x, self.y), Goodie.GOODIE_IMAGE)
         percent = int((size * 100) / Goodie.MAX_SIZE)
         self.image.scale(percent, False)
 

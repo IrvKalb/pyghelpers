@@ -1,11 +1,5 @@
-#  1/18    by Irv Kalb
 #
-#  Added dialogs
-#  Split program into scenes, uses Scene Manager
-#  Added 'Goodies' (and Goodie Manager)
-#  Changed the scoring mechanism and display.
-#  Saves high scores to file.
-#  Re-wrote to be object oriented, built Baddie Manager
+#  Scene Play - the main game play scene
 #
 #  Original version by Al Swiegart from his book "Invent With Python"
 #    (concept, graphics, and sounds used by permission from Al Swiegart)

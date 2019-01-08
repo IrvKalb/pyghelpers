@@ -10,7 +10,7 @@ class Baddie():
     MAX_SIZE = 40
     MIN_SPEED = 1
     MAX_SPEED = 9  # max plus one
-    IMAGE = pygame.image.load('images/baddie.png')
+    BADDIE_IMAGE = pygame.image.load('images/baddie.png')   # Load the image only once
 
     def __init__(self, window):
         self.window = window
@@ -19,7 +19,7 @@ class Baddie():
         size = random.randrange(Baddie.MIN_SIZE, Baddie.MAX_SIZE + 1)
         self.x = random.randrange(0, WINDOW_WIDTH - size)
         self.y = 0 - size # start above the window
-        self.image = pygwidgets.Image(self.window, (self.x, self.y), 'images/baddie.png')
+        self.image = pygwidgets.Image(self.window, (self.x, self.y), Baddie.BADDIE_IMAGE)
 
         # Scale it
         percent = int((size * 100) / Baddie.MAX_SIZE)
