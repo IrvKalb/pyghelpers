@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='pyghelpers',
-    version='0.9.6',
+    version='0.9.7',
     author='Irv Kalb',
     author_email='Irv@furrypants.com',
     description='Classes and functions for use with Pygame',
