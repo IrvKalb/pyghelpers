@@ -22,6 +22,7 @@ pyghelpers also contains the following functions:
 - customYesNoDialog - a dialog box with custom graphics (yes/no, or just OK)
 - textAnswerDialog - a text-based dialog box allowing the user to enter a string
 - customAnswerDialog - a dialog box with custom graphics that allows the user to enter a string
+
 - fileExists - find out if a file at a given path exists
 - readFile - reads from a (text) file
 - writeFile - writes to a (text) file
@@ -66,9 +67,13 @@ class Timer():
 
         myTimer.start()
 
+        You can also call this method to restart the timer after it finishes.
+
     3)  In your big loop, check to see if the timer has finished:
 
         finished = myTimer.update()
+
+        Normally returns False, but returns True when the timer is finished
 
     Parameters:
         | timeInSeconds - the duration of the timer, in seconds (integer or float)
@@ -112,6 +117,24 @@ class Timer():
                 self.callBack(self.nickname)
 
             return True  # True here means that the timer has ended
+
+    def getTime(self):
+        """ Call this if you want to know how much has elapsed
+
+        Returns:
+           |   0 - if the Timer is not running
+           |   seconds elapsed since start, as a float
+
+        """
+        if not self.running:
+            return 0
+        else:
+            timeElapsed = time.time() - self.startTime
+            return timeElapsed
+
+    def stop(self):
+        """Stops the timer from running"""
+        self.running = False
 
 #
 # CountUpTimer class
