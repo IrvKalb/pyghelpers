@@ -32,6 +32,16 @@ pyghelpers also contains the following functions:
 - readALine - reads a line of text from an open file
 - closeFile - closes an open file
 
+
+
+
+Many helpeers allow the use of a callback (a function or method to be called when an action happens)
+    Any widget that uses a callback should be set up like this:
+          def <callbackMethodName>(self, nickName)
+    When the appropriate action happens, the callback method will be called and the nickName will be passed
+    If you don't need the nickname, you can just ignore that parameter
+
+
 """
 
 
