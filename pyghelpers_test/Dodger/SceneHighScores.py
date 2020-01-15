@@ -67,6 +67,7 @@ class SceneHighScores(pyghelpers.Scene):
         # and will always be kept in order of the score (highest to lowest)
         if not pyghelpers.fileExists(SceneHighScores.DATA_FILE_PATH):
             self.setEmptyHighScores()
+
         else:
             data = pyghelpers.readFile(SceneHighScores.DATA_FILE_PATH)
             # read in all the data in json format, converts to a list of lists
@@ -101,20 +102,10 @@ class SceneHighScores(pyghelpers.Scene):
 
 
     def setEmptyHighScores(self):
-        self.scoresList = [
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0],
-            ['-----', 0]]
-
-        pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
-        self.showHighScores()
+            self.scoresList = [] 
+            for i in range(0, SceneHighScores.N_HIGH_SCORES):
+                self.scoresList.append(['-----', 0])
+            pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
 
     def enter(self, data):
         # This can be called two different ways:
@@ -152,7 +143,6 @@ class SceneHighScores(pyghelpers.Scene):
                 # Write out updated file of high scores
                 pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
 
-
     def showHighScores(self):
         # Build up strings and show them in text display fields
         scoresText = ''
@@ -180,6 +170,7 @@ class SceneHighScores(pyghelpers.Scene):
                                                   "Are you sure you want to \nRESET the high scores?")
                 if confirmed:
                     self.setEmptyHighScores()
+                    self.showHighScores()
 
 
     def draw(self):
