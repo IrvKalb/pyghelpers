@@ -7,8 +7,6 @@ import sys
 # The next line is here just in case you are running from the command line
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import pygame
-from pygame.locals import *
-import random
 import pygwidgets
 import pyghelpers
 
@@ -108,12 +106,14 @@ while True:
             sys.exit()
 
         if textAlertButton.handleEvent(event):
-            ignore = pyghelpers.textYesNoDialog(window, (75, 100, 500, 150),
+            # Note, only an OK button, so need to check the value returned from this call (will be True)
+            pyghelpers.textYesNoDialog(window, (75, 100, 500, 150),
                                                   'This is an alert!', 'OK', '')
             print('User clicked the OK button')
 
         if customAlertButton.handleEvent(event):
-            ignore = showCustomAlertDialog(window, 'This is an alert!')
+            # Note, only an OK button, so need to check the value returned from this call (will be True)
+            showCustomAlertDialog(window, 'This is an alert!')
             print('User clicked the OK button')
 
         if textYesNoButton.handleEvent(event):

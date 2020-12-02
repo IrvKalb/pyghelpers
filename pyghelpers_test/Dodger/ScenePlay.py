@@ -5,9 +5,6 @@
 #    (concept, graphics, and sounds used by permission from Al Swiegart)
 
 import pygame
-from pygame.locals import *
-import random
-import sys
 import pygwidgets
 import pyghelpers
 from Constants import *

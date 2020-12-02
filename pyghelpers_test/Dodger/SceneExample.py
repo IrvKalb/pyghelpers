@@ -5,8 +5,7 @@
 #
 
 import pygwidgets
-iimport pyghelpers
-mport pygame
+import pyghelpers
 
 class MyScene(pyghelpers.Scene):  # Inherits from the Scene class in the pyghelpers file
     def __init__(self, window, sceneKey):

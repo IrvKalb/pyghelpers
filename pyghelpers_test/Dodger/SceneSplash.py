@@ -2,8 +2,6 @@
 # This the Splash Scene
 #
 
-import pygame
-from pygame.locals import *
 import pygwidgets
 import pyghelpers
 from Constants import *

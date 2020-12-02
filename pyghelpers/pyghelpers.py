@@ -79,6 +79,9 @@ or implied, of Irv Kalb.
 
 History:
 
+5/26/20  Version 1.0.2
+        Added __version__  and function  getVersion()
+
 Version 1.0     01/13/20
 
 '''
@@ -91,6 +94,13 @@ import time
 
 PYGHELPERS_NSECONDS_PER_HOUR = 60 * 60
 PYGHELPERS_NSECONDS_PER_MINUTE = 60
+
+__version__ = "1.0.2"
+
+def getVersion():
+    """Returns the current version number of the pyghelpers package"""
+    return __version__
+
 
 # Timer classes:
 #    Timer (simple)
@@ -139,8 +149,12 @@ class Timer():
         self.callBack = callBack
         self.running = False
 
-    def start(self):
-        """Start the timer running (starts at zero)"""
+    def start(self, newTimeInSeconds=None):
+        """Start the timer running (starts at zero)
+        Allows you to optionally specify a different amount of time.
+        """
+        if newTimeInSeconds != None:
+            self.timeInSeconds = newTimeInSeconds
         self.running = True
         self.startTime = time.time()
 
