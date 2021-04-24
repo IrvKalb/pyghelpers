@@ -2,7 +2,6 @@
 # This the High Scores Scene
 #
 
-import pygame
 from pygame.locals import *
 import pygwidgets
 import pyghelpers

@@ -79,8 +79,12 @@ or implied, of Irv Kalb.
 
 History:
 
+4/21  Version 1.0.3
+    Turn off key repeating when going to a new scene
+    Changed SceneMgr _goToScene method to goToScene
+
 5/26/20  Version 1.0.2
-        Added __version__  and function  getVersion()
+    Added __version__  and function  getVersion()
 
 Version 1.0     01/13/20
 
@@ -95,7 +99,7 @@ import time
 PYGHELPERS_NSECONDS_PER_HOUR = 60 * 60
 PYGHELPERS_NSECONDS_PER_MINUTE = 60
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 def getVersion():
     """Returns the current version number of the pyghelpers package"""
@@ -608,8 +612,8 @@ class SceneMgr():
             clock.tick(self.framesPerSecond)
             
 
-    def _goToScene(self, nextSceneKey, dataForNextScene):
-        """Internal method, called by a Scene tells the SceneMgr to go to another scene
+    def goToScene(self, nextSceneKey, dataForNextScene):
+        """Called by a Scene tells the SceneMgr to go to another scene
 
         (From the Scene's point of view, it just needs to call its own goToScene method)
         This method:
@@ -629,6 +633,8 @@ class SceneMgr():
             if nextSceneKey not in self.scenesDict:
                 raise Exception("Trying to go to unknown scene '" + nextSceneKey + \
                             "' but that key is not in the dictionary of scenes.")
+            pygame.key.set_repeat(0) # turn off repeating characters
+
             self.oCurrentScene = self.scenesDict[nextSceneKey]
             self.oCurrentScene.enter(dataForNextScene)
 
@@ -784,7 +790,7 @@ class Scene():
             |          (The data can be a single value, a list, dictionary, object, etc.)
 
         """
-        self.oSceneMgr._goToScene(nextSceneKey, data)
+        self.oSceneMgr.goToScene(nextSceneKey, data)
 
 
     def request(self, targetSceneKey, infoRequested):
