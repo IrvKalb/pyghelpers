@@ -80,6 +80,8 @@ or implied, of Irv Kalb.
 History:
 
 4/21  Version 1.0.3
+    Use ABC for abstract base class and abstract methods
+    Updated version(s) of Timer's getTimeHHMMSS
     Turn off key repeating when going to a new scene
     Changed SceneMgr _goToScene method to goToScene
 
@@ -95,9 +97,10 @@ from pygame.locals import *
 import pygwidgets
 import sys
 import time
+from abc import ABC, abstractmethod
 
-PYGHELPERS_NSECONDS_PER_HOUR = 60 * 60
 PYGHELPERS_NSECONDS_PER_MINUTE = 60
+PYGHELPERS_NSECONDS_PER_HOUR = 60 * PYGHELPERS_NSECONDS_PER_MINUTE
 
 __version__ = "1.0.3"
 
@@ -245,14 +248,14 @@ class CountUpTimer():
 
     def __init__(self):
         self.running = False
-        self.savedSecondsElapsed = '0'
+        self.savedSecondsElapsed = 0.0
         self.secondsStart = 0  # safeguard
 
     def start(self):
         """Start the timer running (starts at zero).  Can be called to restart the timer, for example to play a game multiple times"""
         self.secondsStart = time.time()  # get the current seconds, and save it away
         self.running = True
-        self.savedSecondsElapsed = '0'
+        self.savedSecondsElapsed = 0.0
 
     def getTime(self):
         """Returns the time elapsed as a float"""
@@ -266,13 +269,17 @@ class CountUpTimer():
 
     def getTimeInSeconds(self):
         """Returns the time elapsed as an integer number of seconds"""
-        if not self.running:
-            return self.savedSecondsElapsed  # do nothing
-        nSeconds = self.getTime()
-        nSeconds = int(nSeconds)
-        self.savedSecondsElapsed = nSeconds
+##        if not self.running:
+##            return self.savedSecondsElapsed  # do nothing
+##        nSeconds = self.getTime()
+##        nSeconds = int(nSeconds)
+##        self.savedSecondsElapsed = nSeconds
+##        return nSeconds
+        nSeconds = int(self.getTime())
         return nSeconds
 
+
+    # Updated version by Monte Davidoff
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
         """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
@@ -283,46 +290,24 @@ class CountUpTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
-        if not self.running:
-            return self.savedSecondsElapsed  # do nothing
-        
+        #if not self.running:
+            #return self.savedSecondsElapsed  # do nothing
+
         nSeconds = self.getTime()
-        if nMillisecondsDigits > 0:
-            timeAsString = str(nSeconds)
-            timeAsList = timeAsString.split('.')
-            msAsString = timeAsList[1]  # use decimal digits
-
-            if len(msAsString) > nMillisecondsDigits: # typical case t
-                requestedMsDigits = msAsString[: nMillisecondsDigits]
-            else:  # not enough digits, go to the end
-                requestedMsDigits = msAsString[ : ]
-
-        nSeconds = int(nSeconds)
-        output = ''
-        if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
-            showingHours = True
-            nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
-            nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
-            output = str(nHours) + ":"
-        else:
-            showingHours = False
-        if showingHours or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
-            nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
-            nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
-            if showingHours and (nMinutes < 10):
-                output = output + '0' + str(nMinutes) + ":"
-            else:
-                output = output + str(nMinutes) + ":"
-            showingMinutes = True
-        else:
-            showingMinutes = False
-        if showingMinutes and (nSeconds < 10):
-            output = output + '0' + str(nSeconds)
-        else:
-            output = output + str(nSeconds)
+        mins, secs = divmod(nSeconds, 60)
+        hours, mins = divmod(int(mins), 60)
 
         if nMillisecondsDigits > 0:
-            output = output + "." + requestedMsDigits
+            secs_width = nMillisecondsDigits + 3
+        else:
+            secs_width = 2
+
+        if hours > 0:
+            output = f'{hours:d}:{mins:02d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+        elif mins > 0:
+            output = f'{mins:d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+        else:
+            output = f'{secs:.{nMillisecondsDigits}f}'
 
         self.savedSecondsElapsed = output
         return output
@@ -386,7 +371,7 @@ class CountDownTimer():
         self.callBack = callBack
 
         self.running = False
-        self.secondsSavedRemaining = '0'
+        self.secondsSavedRemaining = 0.0
         self.reachedZero = False
 
     def start(self):
@@ -413,14 +398,19 @@ class CountDownTimer():
 
     def getTimeInSeconds(self):
         """Returns the elapsed time as an integer number of seconds"""
-        if not self.running:
-            return self.secondsSavedRemaining
-        
-        nSeconds = self.getTime()
-        nSeconds = int(nSeconds)
-        self.secondsSavedRemaining = nSeconds
+        #if not self.running:
+            #return self.secondsSavedRemaining
+        #
+        #nSeconds = self.getTime()
+        #nSeconds = int(nSeconds)
+        #self.secondsSavedRemaining = nSeconds
+        #return nSeconds
+
+        nSeconds = int(getTime())
         return nSeconds
 
+
+    # Updated version by Monte Davidoff
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
         """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
@@ -431,46 +421,24 @@ class CountDownTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
-        if not self.running:
-            return self.savedSecondsElapsed  # do nothing
+        #if not self.running:
+            #return self.savedSecondsElapsed  # do nothing
 
         nSeconds = self.getTime()
-        if nMillisecondsDigits > 0:
-            timeAsString = str(nSeconds)
-            timeAsList = timeAsString.split('.')
-            msAsString = timeAsList[1]  # use decimal digits
-
-            if len(msAsString) > nMillisecondsDigits:  # typical case t
-                requestedMsDigits = msAsString[: nMillisecondsDigits]
-            else:  # not enough digits, go to the end
-                requestedMsDigits = msAsString[:]
-
-        nSeconds = int(nSeconds)
-        output = ''
-        if nSeconds > PYGHELPERS_NSECONDS_PER_HOUR:
-            showingHours = True
-            nHours = nSeconds // PYGHELPERS_NSECONDS_PER_HOUR
-            nSeconds = nSeconds - (nHours * PYGHELPERS_NSECONDS_PER_HOUR)
-            output = str(nHours) + ":"
-        else:
-            showingHours = False
-        if showingHours or (nSeconds > PYGHELPERS_NSECONDS_PER_MINUTE):
-            nMinutes = nSeconds // PYGHELPERS_NSECONDS_PER_MINUTE
-            nSeconds = nSeconds - (nMinutes * PYGHELPERS_NSECONDS_PER_MINUTE)
-            if showingHours and (nMinutes < 10):
-                output = output + '0' + str(nMinutes) + ":"
-            else:
-                output = output + str(nMinutes) + ":"
-            showingMinutes = True
-        else:
-            showingMinutes = False
-        if showingMinutes and (nSeconds < 10):
-            output = output + '0' + str(nSeconds)
-        else:
-            output = output + str(nSeconds)
+        mins, secs = divmod(nSeconds, 60)
+        hours, mins = divmod(int(mins), 60)
 
         if nMillisecondsDigits > 0:
-            output = output + "." + requestedMsDigits
+            secs_width = nMillisecondsDigits + 3
+        else:
+            secs_width = 2
+
+        if hours > 0:
+            output = f'{hours:d}:{mins:02d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+        elif mins > 0:
+            output = f'{mins:d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+        else:
+            output = f'{secs:.{nMillisecondsDigits}f}'
 
         self.savedSecondsElapsed = output
         return output
@@ -537,6 +505,10 @@ class SceneMgr():
         | startingSceneKey - is the string identifying which scene is the starting scene
         | fps - is the frames per second at which the program should run
 
+    
+    Raises:
+        - KeyError if the starting scene key is not valid
+
     Based on a concept of a "Scene Manager" by Blake O'Hare of Nerd Paradise (nerdparadise.com)
 
     """
@@ -545,7 +517,7 @@ class SceneMgr():
 
         self.scenesDict = scenesDict
         if startingSceneKey not in self.scenesDict:
-            raise Exception("The starting scene '" + startingSceneKey + \
+            raise KeyError("The starting scene '" + startingSceneKey + \
                             "' is not a key in the dictionary of scenes.")
         self.currentSceneKey = startingSceneKey
         self.oCurrentScene = self.scenesDict[startingSceneKey]
@@ -621,6 +593,9 @@ class SceneMgr():
         - Gets any data the leaving scene wants to send to the new scene
         - Tells the new scene that it is entering, calls enter method
 
+        Raises:
+        - KeyError if the nextSceneKey is not valid
+
         """
         if nextSceneKey is None:  # meaning, exit
             pygame.quit()
@@ -631,7 +606,7 @@ class SceneMgr():
             # Call the enter method of the new scene.
             self.oCurrentScene.leave()
             if nextSceneKey not in self.scenesDict:
-                raise Exception("Trying to go to unknown scene '" + nextSceneKey + \
+                raise KeyError("Trying to go to unknown scene '" + nextSceneKey + \
                             "' but that key is not in the dictionary of scenes.")
             pygame.key.set_repeat(0) # turn off repeating characters
 
@@ -676,7 +651,7 @@ class SceneMgr():
 
 
 
-class Scene():
+class Scene(ABC):
     """The Scene class is an abstract class to be used as a base class for any scenes that you want to create.
 
     Each scene must be created with a key (which is a unique string) to identify itself.
@@ -744,6 +719,7 @@ class Scene():
         pass
 
 
+    @abstractmethod
     def handleInputs(self, events, keyPressedList):
         """This method is called in every frame of the scene to handle events and key presses
 
@@ -754,19 +730,21 @@ class Scene():
             |    keyPressedList - a list of keys that are pressed (a Boolean for each key).
 
         """
-        raise NotImplementedError('Your scene subclass must implement the method: handleInput')
+        raise NotImplementedError
 
+    @abstractmethod
     def update(self):
         """This method is called in every frame of the scene do any processing you need to do here"""
-        pass
+        raise NotImplementedError
 
+    @abstractmethod
     def draw(self):
         """This method is called in every frame of the scene to draw anything that needs to be drawn
 
         Your code must override this method.
 
         """
-        raise NotImplementedError('Your scene subclass must implement the method: draw')
+        raise NotImplementedError
 
     def leave(self):
         """This method is called whenever the user leaves a scene
@@ -835,6 +813,7 @@ class Scene():
         """
         self.oSceneMgr._sendAll_receive(self, infoType, info)  # pass in self to identify sender
 
+    @abstractmethod
     def respond(self, infoRequested):
         """Respond to a request for information from some other scene
 
@@ -845,8 +824,9 @@ class Scene():
             |    infoRequested - the actual data to be sent back to the caller
 
         """
-        raise NotImplementedError('Your scene subclass must implement the method: respond')
+        raise NotImplementedError
 
+    @abstractmethod
     def receive(self, infoType, info):
         """Receives information from another scene.
 
@@ -858,7 +838,7 @@ class Scene():
             |    info - the information sent from another scene
 
         """
-        raise NotImplementedError('Your scene subclass must implement the method: receive')
+        raise NotImplementedError
 
 
 #
@@ -1204,7 +1184,7 @@ def readFile(filePath):
     """
 
     if not fileExists(filePath):
-        raise Exception("The file '" + filePath + \
+        raise FileNotFoundError("The file '" + filePath + \
                             "' does not exist - cannot read it.")
 
     fileHandle = open(filePath, 'r')
@@ -1254,7 +1234,7 @@ def openFileForReading(filePath):
 
     """
     if not fileExists(filePath):
-        raise Exception("The file '" + filePath + \
+        raise FileNotFoundError("The file '" + filePath + \
                             "' does not exist - cannot be opened for reading.")
 
     fileHandle = open(filePath, 'r')
