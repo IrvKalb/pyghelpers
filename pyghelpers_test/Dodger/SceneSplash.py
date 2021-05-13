@@ -46,6 +46,9 @@ class SceneSplash(pyghelpers.Scene):
             elif self.highScoresButton.handleEvent(event):
                 self.goToScene(SCENE_HIGH_SCORES)
 
+    def update(self):
+        pass  #nothing to update
+
     def draw(self):
         self.backgroundImage.draw()
         self.dodgerImage.draw()

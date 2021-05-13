@@ -35,7 +35,7 @@ pyghelpers also contains the following functions:
 
 
 
-Many helpeers allow the use of a callback (a function or method to be called when an action happens)
+Many helpers allow the use of a callback (a function or method to be called when an action happens)
     Any widget that uses a callback should be set up like this:
           def <callbackMethodName>(self, nickName)
     When the appropriate action happens, the callback method will be called and the nickName will be passed
@@ -79,9 +79,9 @@ or implied, of Irv Kalb.
 
 History:
 
-4/21  Version 1.0.3
+5/21  Version 1.0.3
     Use ABC for abstract base class and abstract methods
-    Updated version(s) of Timer's getTimeHHMMSS
+    Updated code using f strings in Timer's getTimeHHMMSS, and clean up of timers
     Turn off key repeating when going to a new scene
     Changed SceneMgr _goToScene method to goToScene
 
@@ -99,8 +99,6 @@ import sys
 import time
 from abc import ABC, abstractmethod
 
-PYGHELPERS_NSECONDS_PER_MINUTE = 60
-PYGHELPERS_NSECONDS_PER_HOUR = 60 * PYGHELPERS_NSECONDS_PER_MINUTE
 
 __version__ = "1.0.3"
 
@@ -154,6 +152,7 @@ class Timer():
         self.timeInSeconds = timeInSeconds
         self.nickname = nickname
         self.callBack = callBack
+        self.savedSecondsElapsed = 0.0
         self.running = False
 
     def start(self, newTimeInSeconds=None):
@@ -176,8 +175,8 @@ class Timer():
         """
         if not self.running:
             return False
-        timeElapsed = time.time() - self.startTime
-        if timeElapsed < self.timeInSeconds:
+        self.savedSecondsElapsed = time.time() - self.startTime
+        if self.savedSecondsElapsed < self.timeInSeconds:
             return False  # running but not reached limit
 
         else:  # Timer has finished
@@ -195,14 +194,13 @@ class Timer():
            |   seconds elapsed since start, as a float
 
         """
-        if not self.running:
-            return 0
-        else:
-            timeElapsed = time.time() - self.startTime
-            return timeElapsed
+        if self.running:
+            self.savedSecondsElapsed = time.time() - self.startTime
+            
+        return self.savedSecondsElapsed
 
     def stop(self):
-        """Stops the timer from running"""
+        """Stops the timer"""
         self.running = False
 
 #
@@ -262,24 +260,15 @@ class CountUpTimer():
         if not self.running:
             return self.savedSecondsElapsed  # do nothing
         
-        secondsNow = time.time()
-        secondsElapsed = secondsNow - self.secondsStart
-        self.savedSecondsElapsed = secondsElapsed
-        return secondsElapsed  # returns a float
+        self.savedSecondsElapsed = time.time() - self.secondsStart
+        return self.savedSecondsElapsed  # returns a float
 
     def getTimeInSeconds(self):
         """Returns the time elapsed as an integer number of seconds"""
-##        if not self.running:
-##            return self.savedSecondsElapsed  # do nothing
-##        nSeconds = self.getTime()
-##        nSeconds = int(nSeconds)
-##        self.savedSecondsElapsed = nSeconds
-##        return nSeconds
         nSeconds = int(self.getTime())
         return nSeconds
 
-
-    # Updated version by Monte Davidoff
+    # Updated version using fStrings
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
         """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
@@ -290,31 +279,32 @@ class CountUpTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
-        #if not self.running:
-            #return self.savedSecondsElapsed  # do nothing
-
         nSeconds = self.getTime()
         mins, secs = divmod(nSeconds, 60)
         hours, mins = divmod(int(mins), 60)
 
         if nMillisecondsDigits > 0:
-            secs_width = nMillisecondsDigits + 3
+            secondsWidth = nMillisecondsDigits + 3
         else:
-            secs_width = 2
+            secondsWidth = 2
 
         if hours > 0:
-            output = f'{hours:d}:{mins:02d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+            output = f'{hours:d}:{mins:02d}:{secs:0{secondsWidth}.{nMillisecondsDigits}f}'
         elif mins > 0:
-            output = f'{mins:d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+            output = f'{mins:d}:{secs:0{secondsWidth}.{nMillisecondsDigits}f}'
         else:
             output = f'{secs:.{nMillisecondsDigits}f}'
 
-        self.savedSecondsElapsed = output
         return output
     
     def stop(self):
-        """Stops the timer from running"""
+        """Stops the timer"""
+        if self.running:
+            self.savedSecondsElapsed = time.time() - self.secondsStart
         self.running = False
+
+    # To do:  Would be nice to add both pause and continue methods
+
 
 
 #
@@ -374,9 +364,11 @@ class CountDownTimer():
         self.secondsSavedRemaining = 0.0
         self.reachedZero = False
 
-    def start(self):
-        """Start the timer running (starts at nStartingSeconds)"""
+    def start(self, newStartingSeconds=None):
+        """Start the timer running starting at nStartingSeconds (or optional different setting)"""
         secondsNow = time.time()
+        if newStartingSeconds !=None:
+            self.nStartingSeconds = newStartingSeconds
         self.secondsEnd = secondsNow + self.nStartingSeconds
         self.reachedZero = False
         self.running = True
@@ -386,31 +378,20 @@ class CountDownTimer():
         if not self.running:
             return self.secondsSavedRemaining
         
-        secondsNow = time.time()
-        secondsRemaining = self.secondsEnd - secondsNow
-        if self.stopAtZero and (secondsRemaining <= 0):
-            secondsRemaining = 0.0
+        self.secondsSavedRemaining = self.secondsEnd - time.time()
+        if self.stopAtZero and (self.secondsSavedRemaining <= 0):
+            self.secondsSavedRemaining = 0.0
             self.running = False
             self.reachedZero = True
 
-        self.secondsSavedRemaining = secondsRemaining
-        return secondsRemaining  # returns a float
+        return self.secondsSavedRemaining  # returns a float
 
     def getTimeInSeconds(self):
         """Returns the elapsed time as an integer number of seconds"""
-        #if not self.running:
-            #return self.secondsSavedRemaining
-        #
-        #nSeconds = self.getTime()
-        #nSeconds = int(nSeconds)
-        #self.secondsSavedRemaining = nSeconds
-        #return nSeconds
-
-        nSeconds = int(getTime())
+        nSeconds = int(self.getTime())
         return nSeconds
 
-
-    # Updated version by Monte Davidoff
+    # Updated version using fStrings
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
         """Returns the elapsed time as a HH:MM:SS.mmm formatted string
 
@@ -421,22 +402,19 @@ class CountDownTimer():
             |    If specified, returned string will look like:    HH:MM:SS.mmm
 
         """
-        #if not self.running:
-            #return self.savedSecondsElapsed  # do nothing
-
         nSeconds = self.getTime()
         mins, secs = divmod(nSeconds, 60)
         hours, mins = divmod(int(mins), 60)
 
         if nMillisecondsDigits > 0:
-            secs_width = nMillisecondsDigits + 3
+            secondsWidth = nMillisecondsDigits + 3
         else:
-            secs_width = 2
+            secondsWidth = 2
 
         if hours > 0:
-            output = f'{hours:d}:{mins:02d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+            output = f'{hours:d}:{mins:02d}:{secs:0{secondsWidth}.{nMillisecondsDigits}f}'
         elif mins > 0:
-            output = f'{mins:d}:{secs:0{secs_width}.{nMillisecondsDigits}f}'
+            output = f'{mins:d}:{secs:0{secondsWidth}.{nMillisecondsDigits}f}'
         else:
             output = f'{secs:.{nMillisecondsDigits}f}'
 
@@ -445,12 +423,13 @@ class CountDownTimer():
 
 
     def stop(self):
-        """Stops the timer from running"""
+        """Stops the timer """
+        if self.running:
+            self.secondsSavedRemaining = self.secondsEnd - time.time()
+            if self.stopAtZero and (self.secondsSavedRemaining <= 0):
+                self.secondsSavedRemaining = 0.0
+                self.reachedZero = True
         self.running = False
-
-        # could use the following for a pause/continue later
-        #secondsNow = time.time()
-        #self.secondsSavedRemaining = self.secondsEnd - secondsNow
 
     def ended(self):
         """Call to see if the timer has reached zero. Should be called every time through the loop"""
@@ -461,6 +440,8 @@ class CountDownTimer():
             return True
         else:
             return False
+
+    # To do:  Would be nice to add both pause and continue methods
 
 
 #
@@ -577,7 +558,7 @@ class SceneMgr():
             self.oCurrentScene.update()
             self.oCurrentScene.draw()
 
-            # 11 - Update the screen
+            # 11 - Update the window
             pygame.display.update()
 
             # 12 - Slow things down a bit
@@ -732,10 +713,9 @@ class Scene(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def update(self):
         """This method is called in every frame of the scene do any processing you need to do here"""
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def draw(self):
@@ -813,7 +793,6 @@ class Scene(ABC):
         """
         self.oSceneMgr._sendAll_receive(self, infoType, info)  # pass in self to identify sender
 
-    @abstractmethod
     def respond(self, infoRequested):
         """Respond to a request for information from some other scene
 
@@ -826,7 +805,6 @@ class Scene(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def receive(self, infoType, info):
         """Receives information from another scene.
 
@@ -919,17 +897,17 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
 
         # 8 - Do any "per frame" actions
 
-        # 9 - Clear the screen area before drawing it again
+        # 9 - Clear the window area before drawing it again
         pygame.draw.rect(theWindow, backgroundColor, theRect)
         pygame.draw.rect(theWindow, DIALOG_BLACK, frameRect, 1)
 
-        # 10 - Draw the screen elements
+        # 10 - Draw the window elements
         promptText.draw()
         if showFalseButton:
             falseButton.draw()
         trueButton.draw()
 
-        # 11 - Update the screen
+        # 11 - Update the window
         pygame.display.update()
 
         # 12 - Slow things down a bit
@@ -977,14 +955,14 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
 
         # 9 - Clear the screen area before drawing it again
 
-        # 10 - Draw the screen elements
+        # 10 - Draw the window elements
         oDialogImage.draw()
         oPromptText.draw()
         if showFalseButton:
             oFalseButton.draw()
         oTrueButton.draw()
 
-        # 11 - Update the screen
+        # 11 - Update the window
         pygame.display.update()
 
         # 12 - Slow things down a bit
@@ -1063,13 +1041,13 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
         pygame.draw.rect(theWindow, backgroundColor, theRect)
         pygame.draw.rect(theWindow, DIALOG_BLACK, theRect, 1)
 
-        # 10 - Draw the screen elements
+        # 10 - Draw the window elements
         promptText.draw()
         inputText.draw()
         falseButton.draw()
         trueButton.draw()
 
-        # 11 - Update the screen
+        # 11 - Update the window
         pygame.display.update()
 
         # 12 - Slow things down a bit
@@ -1118,14 +1096,14 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
 
         # 9 - Clear the screen area before drawing it again
 
-        # 10 - Draw the screen elements
+        # 10 - Draw the window elements
         oDialogImage.draw()
         oAnswerText.draw()
         oPromptText.draw()
         oFalseButton.draw()
         oTrueButton.draw()
 
-        # 11 - Update the screen
+        # 11 - Update the window
         pygame.display.update()
 
         # 12 - Slow things down a bit
