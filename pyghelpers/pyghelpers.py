@@ -201,6 +201,7 @@ class Timer():
 
     def stop(self):
         """Stops the timer"""
+        self.getTime()   # remembers final self.savedSecondsElapsed
         self.running = False
 
 #
@@ -299,8 +300,7 @@ class CountUpTimer():
     
     def stop(self):
         """Stops the timer"""
-        if self.running:
-            self.savedSecondsElapsed = time.time() - self.secondsStart
+        self.getTime()   # remembers final self.savedSecondsElapsed
         self.running = False
 
     # To do:  Would be nice to add both pause and continue methods
@@ -424,12 +424,9 @@ class CountDownTimer():
 
     def stop(self):
         """Stops the timer """
-        if self.running:
-            self.secondsSavedRemaining = self.secondsEnd - time.time()
-            if self.stopAtZero and (self.secondsSavedRemaining <= 0):
-                self.secondsSavedRemaining = 0.0
-                self.reachedZero = True
+        self.getTime()   # remembers final self.savedSecondsElapsed
         self.running = False
+        
 
     def ended(self):
         """Call to see if the timer has reached zero. Should be called every time through the loop"""
