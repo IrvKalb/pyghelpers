@@ -80,6 +80,9 @@ or implied, of Irv Kalb.
 History:
 
 5/21  Version 1.0.3
+    Change the SceneMgr so you pass in list of Scenes objects instead of a dictionary.
+       Each scene must implement getSceenKey to define the scene key.
+       First scene in the list is the starting scene.
     Use ABC for abstract base class and abstract methods
     Updated code using f strings in Timer's getTimeHHMMSS, and clean up of timers
     Turn off key repeating when going to a new scene
@@ -211,7 +214,7 @@ class CountUpTimer():
     """
     This class is used to create a Timer that counts up (starting at zero).
 
-    Its intended use is where you want to continuously display the time on screen (using a DisplayText object).
+    Its intended use is where you want to continuously display the time in the window (using a DisplayText object).
 
     Typical use:
 
@@ -314,7 +317,7 @@ class CountDownTimer():
     """
     This class is used to create a Timer that counts down from a given starting number of seconds.
 
-    Its intended use is where you want to continuously display the time on screen (using a DisplayText object).
+    Its intended use is where you want to continuously display the time in the window (using a DisplayText object).
 
 
     Typical use:
@@ -461,13 +464,13 @@ class SceneMgr():
         |  oScene2 = Scene("MainScene")
         |  oScene3 = Scene('SometherScene")
 
-    2) Build a dictionary of these scenes with unique keys:
+    2) Build a list of these scenes:
 
-        mySceneDict = {'Splash': oScene1, 'Main': oScene2, 'Other': oScene3}
+        myScenesList = [oScene1, oScene2, oScene3]
 
     3) Instantiate *one* SceneMgr (a singleton):
 
-        oSceneMgr = SceneMgr(mySceneDict, 'Splash', 30)
+        oSceneMgr = SceneMgr(myScenesList, 'Splash', 30)
 
     4) Call the run method to start the SceneMgr running:
 
@@ -475,10 +478,9 @@ class SceneMgr():
 
 
     Parameters:
-        | scenesDict - is a dictionary that consists of:
-        |    {<sceneKey>:<sceneObject>, <sceneKey:<sceneObject>, ...}
-        |      where each sceneKey is a unique string identifying the scene
-        |      and each sceneObject is an object instantiated from a scene class
+        | scenesList - is a list that consists of:
+        |    [<sceneObject>, <sceneObject>, ...]
+        |      where each sceneObject is an object instantiated from a scene class
         |      (For details on Scenes, see the Scene class)
         | startingSceneKey - is the string identifying which scene is the starting scene
         | fps - is the frames per second at which the program should run
@@ -491,14 +493,16 @@ class SceneMgr():
 
     """
 
-    def __init__(self, scenesDict, startingSceneKey, fps):
+    def __init__(self, scenesList, fps):
 
-        self.scenesDict = scenesDict
-        if startingSceneKey not in self.scenesDict:
-            raise KeyError("The starting scene '" + startingSceneKey + \
-                            "' is not a key in the dictionary of scenes.")
-        self.currentSceneKey = startingSceneKey
-        self.oCurrentScene = self.scenesDict[startingSceneKey]
+        # Build a dictionary, each entry is a scene key : scene object
+        self.scenesDict = {}
+        for oScene in scenesList:
+            key = oScene.getSceneKey()
+            self.scenesDict[key] = oScene
+
+        # The first element in the list is the used as the starting scene
+        self.oCurrentScene = scenesList[0]
         self.framesPerSecond = fps
 
         # Give each scene a reference back to the SceneMgr.
@@ -563,7 +567,7 @@ class SceneMgr():
             
 
     def goToScene(self, nextSceneKey, dataForNextScene):
-        """Called by a Scene tells the SceneMgr to go to another scene
+        """Called by a Scene, tells the SceneMgr to go to another scene
 
         (From the Scene's point of view, it just needs to call its own goToScene method)
         This method:
@@ -592,7 +596,7 @@ class SceneMgr():
             self.oCurrentScene.enter(dataForNextScene)
 
 
-    def _request_respond(self, targetSceneKey, infoRequested):
+    def _request_respond(self, targetSceneKey, requestID):
         """Internal method, called by a Scene tells SceneMgr to query another scene for information.
 
         (From the Scene's point of view, it just needs to call its own request method)
@@ -600,22 +604,22 @@ class SceneMgr():
 
         """
         oTargetScene = self.scenesDict[targetSceneKey]
-        info = oTargetScene.respond(infoRequested)
+        info = oTargetScene.respond(requestID)
         return info
 
 
-    def _send_receive(self, targetSceneKey, infoType, info):
-        """TInternal method, called by a Scene tells the Scene Manager to send information to another scene
+    def _send_receive(self, targetSceneKey, sendID, info):
+        """Internal method, called by a Scene, tells the Scene Manager to send information to another scene
 
         (From the sending scene's point of view, it just needs to call its own send method)
         The target scene must implement a method named "receive"
 
         """
         oTargetScene = self.scenesDict[targetSceneKey]
-        oTargetScene.receive(infoType, info)
+        oTargetScene.receive(sendID, info)
 
 
-    def _sendAll_receive(self, oSenderScene, infoType, info):
+    def _sendAll_receive(self, oSenderScene, sendID, info):
         """Internal method, called by a Scene tells the Scene Manager to send information to all scenes (other than itself)
 
         (From the sending scene's point of view, it just needs to call its own sendAll method)
@@ -625,40 +629,43 @@ class SceneMgr():
         for sceneKey in self.scenesDict:
             oTargetScene = self.scenesDict[sceneKey]
             if oTargetScene != oSenderScene:
-                oTargetScene.receive(infoType, info)
+                oTargetScene.receive(sendID, info)
 
 
 
 class Scene(ABC):
     """The Scene class is an abstract class to be used as a base class for any scenes that you want to create.
 
-    Each scene must be created with a key (which is a unique string) to identify itself.
+    The Scene Manager instantiates a Scene object from your Scene subclass.
+    In the __init__ method of your scene subclass, you will receive a window reference.
+    You should copy this into an instance variable like this:
 
-    The code creating a scene does so by instantiating a scene object from your scene subclass.
-    That code must pass in a windows to draw into, and a unique key to identify the scene.
-    In the __init__ method of your scene subclass, you will receive a window and a sceneKey.
-    You must copy those into instance variables by starting your __init__ method like this:
-
-        |    def __init__(self, window, sceneKey):
+        |    def __init__(self, window):
         |        self.window = window
-        |        self.sceneKey = sceneKey
         |        # Add any initialization you want to do here.
 
-        When your scene is active, the SceneManager calls a standard set of methods in the current scene.
-        Therefore, all scenes must implement these methods (polymorphism):
+    You also need to write a getSceneKey() method that returns a unique sting
+    or constant that uniquely identifies the scene.  It is recommended that you
+    build and import a Constants.py file that contains constants for each scene,
+    and use the key associated with the current scene here.
 
-           |    handleInputs  # called in every frame
-           |    draw          # called in every frame
+        |    def getSceneKey(self):
+        |        return <string or CONSTANT that identifies this scene>
+
+    When your scene is active, the SceneManager calls a standard set of methods in the current scene.
+    Therefore, all scenes must implement these methods (polymorphism):
+
+        |    handleInputs  # called in every frame
+        |    draw          # called in every frame
 
 
-        The following methods can optionally be implemented in a scene.  If they are not
-        implemented, then the default version in the Scene subclass will be used.
-        (The Scene class' default versions do not do anything, they just return):
+    The following methods can optionally be implemented in a scene.  If they are not
+    implemented, then the default version in the Scene subclass will be used.
+    (The Scene class' default versions do not do anything, they just return):
 
-           |    enter          # called once whenever the scene is entered
-           |    update         # called in every frame
-           |    leave          # called once whenever the scene is left
-
+        |    enter          # called once whenever the scene is entered
+        |    update         # called in every frame
+        |    leave          # called once whenever the scene is left
 
     When you want to go to a new scene:
 
@@ -696,6 +703,11 @@ class Scene(ABC):
         """
         pass
 
+    @abstractmethod
+    def getSceneKey(self):
+        """This method must return the scene key for this scene
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def handleInputs(self, events, keyPressedList):
@@ -748,7 +760,7 @@ class Scene(ABC):
         self.oSceneMgr.goToScene(nextSceneKey, data)
 
 
-    def request(self, targetSceneKey, infoRequested):
+    def request(self, targetSceneKey, requestID):
         """Call this method to get information from another scene
 
         The target scene must implement a method named: respond,
@@ -756,13 +768,13 @@ class Scene(ABC):
 
         Parameters:
             |    targetSceneKey - the scene key (string) to ask for data
-            |    infoRequested - the data you want from the target scene (typically a string)
+            |    requestID - the data you want from the target scene (typically a string)
 
         """
-        info = self.oSceneMgr._request_respond(targetSceneKey, infoRequested)
+        info = self.oSceneMgr._request_respond(targetSceneKey, requestID)
         return info
 
-    def send(self, targetSceneKey, infoType, info):
+    def send(self, targetSceneKey, sendID, info):
         """Call this method to send information to  another scene
 
         The other scene must implement a method named:  receive.
@@ -770,46 +782,46 @@ class Scene(ABC):
 
         Parameters:
             |    targetSceneKey - the scene key (string) to ask for data
-            |    infoType - the type of data you are sending the target scene (typically a string)
+            |    sendID - the type of data you are sending the target scene (typically a string)
             |    info - the actual data to send (can be any type)
 
 
         """
-        self.oSceneMgr._send_receive(targetSceneKey, infoType, info)
+        self.oSceneMgr._send_receive(targetSceneKey, sendID, info)
 
-    def sendAll(self, infoType, info):
+    def sendAll(self, sendID, info):
         """Call this method to send information to all other scenes
 
         The other scenes must implement a method named:  receive.
         You can pass any info that the sender and all other scenes agree upon
 
         Parameters:
-            |    infoType - the type of data you are sending the target scene (typically a string)
+            |    sendID - the type of data you are sending the target scene (typically a string)
             |    info - the actual data to send (can be any type)
 
         """
-        self.oSceneMgr._sendAll_receive(self, infoType, info)  # pass in self to identify sender
+        self.oSceneMgr._sendAll_receive(self, sendID, info)  # pass in self to identify sender
 
-    def respond(self, infoRequested):
+    def respond(self, requestID):
         """Respond to a request for information from some other scene
 
         You must override this method if your scene expects to handle
         requests for information from other scenes via calls to:  request
 
         Parameters:
-            |    infoRequested - the actual data to be sent back to the caller
+            |    requestID - identifier of what data to be sent back to the caller
 
         """
         raise NotImplementedError
 
-    def receive(self, infoType, info):
+    def receive(self, receiveID, info):
         """Receives information from another scene.
 
-        You must override this method if your scene expects to respond to
+        You must override this method if your scene expects to receive information from
         other scenes sending information via calls to:  send
 
         Parameters:
-            |    infoType - an identifier for what type of information is being received
+            |    receiveID - an identifier for what type of information is being received
             |    info - the information sent from another scene
 
         """
@@ -950,7 +962,7 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
 
         # 8 - Do any "per frame" actions
 
-        # 9 - Clear the screen area before drawing it again
+        # 9 - Clear the window area before drawing it again
 
         # 10 - Draw the window elements
         oDialogImage.draw()
@@ -1034,7 +1046,7 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
 
         # 8 - Do any "per frame" actions
 
-        # 9 - Clear the screen area before drawing it again
+        # 9 - Clear the window area before drawing it again
         pygame.draw.rect(theWindow, backgroundColor, theRect)
         pygame.draw.rect(theWindow, DIALOG_BLACK, theRect, 1)
 
@@ -1091,7 +1103,7 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
 
         # 8 - Do any "per frame" actions
 
-        # 9 - Clear the screen area before drawing it again
+        # 9 - Clear the window area before drawing it again
 
         # 10 - Draw the window elements
         oDialogImage.draw()

@@ -5,6 +5,9 @@
 #    (concept, graphics, and sounds used by permission from Al Swiegart)
 
 import pygame
+from pygame.locals import *
+import random
+import sys
 import pygwidgets
 import pyghelpers
 from Constants import *
@@ -47,10 +50,8 @@ BOTTOM_RECT = (0, GAME_HEIGHT + 1, WINDOW_WIDTH, WINDOW_HEIGHT - GAME_HEIGHT)
 
 class ScenePlay(pyghelpers.Scene):
 
-    def __init__(self, window, sceneKey):
-        # Save window and sceneKey in instance variables
+    def __init__(self, window):
         self.window = window
-        self.sceneKey = sceneKey
 
         self.playBackground = pygwidgets.Image(self.window, (0, 0), 'images/playBackground.jpg')
         self.controlsBackground = pygwidgets.Image(self.window, (0, GAME_HEIGHT), 'images/controlsBackground.jpg')
@@ -103,6 +104,9 @@ class ScenePlay(pyghelpers.Scene):
 
         self.highScore = 0
         self.backgroundMusic = True
+
+    def getSceneKey(self):
+        return SCENE_PLAY
 
     def enter(self, data):  # no data passed in
         self.reset()

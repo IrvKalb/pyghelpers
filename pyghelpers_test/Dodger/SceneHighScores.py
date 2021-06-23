@@ -2,6 +2,8 @@
 # This the High Scores Scene
 #
 
+import pygame
+import sys
 from pygame.locals import *
 import pygwidgets
 import pyghelpers
@@ -51,10 +53,8 @@ class SceneHighScores(pyghelpers.Scene):
     DATA_FILE_PATH = 'HighScores.txt'
     N_HIGH_SCORES = 10
     
-    def __init__(self, window, sceneKey):
-        # Save window and sceneKey in instance variables
+    def __init__(self, window):
         self.window = window
-        self.sceneKey = sceneKey
 
         self.backgroundImage = pygwidgets.Image(self.window, (0, 0), "images/highScoresBackground.jpg")
 
@@ -104,6 +104,9 @@ class SceneHighScores(pyghelpers.Scene):
             for i in range(0, SceneHighScores.N_HIGH_SCORES):
                 self.scoresList.append(['-----', 0])
             pyghelpers.writeFile(SceneHighScores.DATA_FILE_PATH, json.dumps(self.scoresList))
+
+    def getSceneKey(self):
+        return SCENE_HIGH_SCORES
 
     def enter(self, data):
         # This can be called two different ways:
@@ -180,8 +183,8 @@ class SceneHighScores(pyghelpers.Scene):
         self.startNewGameButton.draw()
 
 
-    def respond(self, infoRequested):
-        if infoRequested == HIGH_SCORES_DATA:
+    def respond(self, requestID):
+        if requestID == HIGH_SCORES_DATA:
             # This is a request to get a dictionary made up of
             # the highest score so far, and the lowest high score of all scores in the list
             highestOnList = self.scoresList[0]
