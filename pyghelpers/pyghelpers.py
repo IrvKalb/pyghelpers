@@ -80,6 +80,7 @@ or implied, of Irv Kalb.
 History:
 
 5/21  Version 1.0.3
+    Added __all__ to define what gets imported when you import *
     Change the SceneMgr so you pass in list of Scenes objects instead of a dictionary.
        Each scene must implement getSceenKey to define the scene key.
        First scene in the list is the starting scene.
@@ -109,6 +110,27 @@ def getVersion():
     """Returns the current version number of the pyghelpers package"""
     return __version__
 
+__all__ = [
+    'CountDownTimer',
+    'CountUpTimer',
+    'DIALOG_BACKGROUND_COLOR',
+    'DIALOG_BLACK',
+    'Scene',
+    'SceneMgr',
+    'Timer',
+    'closeFile',
+    'customAnswerDialog',
+    'customYesNoDialog',
+    'fileExists',
+    'openFileForReading',
+    'openFileForWriting',
+    'readALine',
+    'readFile',
+    'textAnswerDialog',
+    'textYesNoDialog',
+    'writeALine',
+    'writeFile',
+]
 
 # Timer classes:
 #    Timer (simple)
@@ -470,11 +492,11 @@ class SceneMgr():
 
     3) Instantiate *one* SceneMgr (a singleton):
 
-        oSceneMgr = SceneMgr(myScenesList, 'Splash', 30)
+        oSceneMgr = SceneMgr(myScenesList, 30) # First scene in the list is the starting scene
 
     4) Call the run method to start the SceneMgr running:
 
-        oSceneMgr.run()
+        oSceneMgr.run()  # First scene in the list is the starting scene
 
 
     Parameters:
@@ -482,17 +504,11 @@ class SceneMgr():
         |    [<sceneObject>, <sceneObject>, ...]
         |      where each sceneObject is an object instantiated from a scene class
         |      (For details on Scenes, see the Scene class)
-        | startingSceneKey - is the string identifying which scene is the starting scene
         | fps - is the frames per second at which the program should run
-
-    
-    Raises:
-        - KeyError if the starting scene key is not valid
 
     Based on a concept of a "Scene Manager" by Blake O'Hare of Nerd Paradise (nerdparadise.com)
 
     """
-
     def __init__(self, scenesList, fps):
 
         # Build a dictionary, each entry is a scene key : scene object
@@ -506,10 +522,9 @@ class SceneMgr():
         self.framesPerSecond = fps
 
         # Give each scene a reference back to the SceneMgr.
-        # This allows any scene to do a goToScene, request,
+        # This allows any scene to do a goToScene, request, send,
         # and send back to the Scene Manager
-        for key in self.scenesDict:
-            oScene = self.scenesDict[key]
+        for key, oScene in self.scenesDict.items():
             oScene._setRefToSceneMgr(self)
 
     def run(self):
@@ -545,7 +560,8 @@ class SceneMgr():
             eventsList = []
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT) or \
-                        ((event.type == pygame.KEYDOWN) and (event.key == pygame.K_ESCAPE)):
+                        ((event.type == pygame.KEYDOWN) and
+                         (event.key == pygame.K_ESCAPE)):
                     self.oCurrentScene.leave()  # tell current scene we are leaving
                     pygame.quit()
                     sys.exit()
@@ -566,7 +582,7 @@ class SceneMgr():
             clock.tick(self.framesPerSecond)
             
 
-    def goToScene(self, nextSceneKey, dataForNextScene):
+    def _goToScene(self, nextSceneKey, dataForNextScene):
         """Called by a Scene, tells the SceneMgr to go to another scene
 
         (From the Scene's point of view, it just needs to call its own goToScene method)
@@ -582,18 +598,18 @@ class SceneMgr():
         if nextSceneKey is None:  # meaning, exit
             pygame.quit()
             sys.exit()
-        else:
-            # Call the leave method of the old scene to allow it to clean up
-            # Look up the new scene (based on the key),
-            # Call the enter method of the new scene.
-            self.oCurrentScene.leave()
-            if nextSceneKey not in self.scenesDict:
-                raise KeyError("Trying to go to unknown scene '" + nextSceneKey + \
-                            "' but that key is not in the dictionary of scenes.")
-            pygame.key.set_repeat(0) # turn off repeating characters
 
+        # Call the leave method of the old scene to allow it to clean up
+        # Set the new scene (based on the key),
+        # Call the enter method of the new scene.
+        self.oCurrentScene.leave()
+        pygame.key.set_repeat(0) # turn off repeating characters
+        try:
             self.oCurrentScene = self.scenesDict[nextSceneKey]
-            self.oCurrentScene.enter(dataForNextScene)
+        except KeyError:
+            raise KeyError("Trying to go to scene '" + nextSceneKey +
+                "' but that key is not in the dictionary of scenes.")
+        self.oCurrentScene.enter(dataForNextScene)
 
 
     def _request_respond(self, targetSceneKey, requestID):
@@ -757,7 +773,7 @@ class Scene(ABC):
             |          (The data can be a single value, a list, dictionary, object, etc.)
 
         """
-        self.oSceneMgr.goToScene(nextSceneKey, data)
+        self.oSceneMgr._goToScene(nextSceneKey, data)
 
 
     def request(self, targetSceneKey, requestID):
