@@ -96,20 +96,6 @@ Version 1.0     01/13/20
 
 '''
 
-import pygame
-from pygame.locals import *
-import pygwidgets
-import sys
-import time
-from abc import ABC, abstractmethod
-
-
-__version__ = "1.0.3"
-
-def getVersion():
-    """Returns the current version number of the pyghelpers package"""
-    return __version__
-
 __all__ = [
     'CountDownTimer',
     'CountUpTimer',
@@ -131,6 +117,20 @@ __all__ = [
     'writeALine',
     'writeFile',
 ]
+
+import pygame
+from pygame.locals import *
+import pygwidgets
+import sys
+import time
+from abc import ABC, abstractmethod
+
+__version__ = "1.0.3"
+
+def getVersion():
+    """Returns the current version number of the pyghelpers package"""
+    return __version__
+
 
 # Timer classes:
 #    Timer (simple)
