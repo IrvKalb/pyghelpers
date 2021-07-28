@@ -1,4 +1,4 @@
-### GOODIE
+# Goodie and GoddieMgr classes
 import pygame
 import pygwidgets
 import random
@@ -6,29 +6,32 @@ from Constants import *
 
 class Goodie():
     MIN_SIZE = 10
-    MAX_SIZE = 41  # max plus one
+    MAX_SIZE = 40
     MIN_SPEED = 1
-    MAX_SPEED = 9  # max plus one
-    GOODIE_IMAGE = pygame.image.load('images/goodie.png')  # load the image once
+    MAX_SPEED = 8
+    # Load the image once
+    GOODIE_IMAGE = pygame.image.load('images/goodie.png')
     RIGHT = 'right'
     LEFT = 'left'
 
     def __init__(self, window):
         self.window = window
-        size = random.randrange(Goodie.MIN_SIZE, Goodie.MAX_SIZE)
+        size = random.randrange(Goodie.MIN_SIZE, Goodie.MAX_SIZE + 1)
         self.y = random.randrange(0, GAME_HEIGHT - size)
 
         self.direction = random.choice([Goodie.LEFT, Goodie.RIGHT])
-        if self.direction == Goodie.LEFT:  # start on right side
-            self.x = WINDOW_WIDTH   # start to the right of the window
-            self.speed = - random.randrange(Goodie.MIN_SPEED, Goodie.MAX_SPEED)
+        if self.direction == Goodie.LEFT:  # start on right side of the window
+            self.x = WINDOW_WIDTH
+            self.speed = - random.randrange(Goodie.MIN_SPEED,
+                                                            Goodie.MAX_SPEED + 1)
             self.minLeft = - size
-        else:  # start on left side
-            self.x = 0 - size # start to the left of the window
-            self.speed = random.randrange(Goodie.MIN_SPEED, Goodie.MAX_SPEED)
+        else:  # start on left side of the window
+            self.x = 0 - size
+            self.speed = random.randrange(Goodie.MIN_SPEED,
+                                                          Goodie.MAX_SPEED + 1)
 
-
-        self.image = pygwidgets.Image(self.window, (self.x, self.y), Goodie.GOODIE_IMAGE)
+        self.image = pygwidgets.Image(self.window,
+                                                     (self.x, self.y), Goodie.GOODIE_IMAGE)
         percent = int((size * 100) / Goodie.MAX_SIZE)
         self.image.scale(percent, False)
 
@@ -46,7 +49,6 @@ class Goodie():
             else:
                 return False  # stays in window
 
-
     def draw(self):
         self.image.draw()
 
@@ -55,7 +57,6 @@ class Goodie():
         return collidedWithPlayer
 
 
-# GOODIEMGR
 class GoodieMgr():
     GOODIE_RATE_LO = 90
     GOODIE_RATE_HI = 111
@@ -79,24 +80,28 @@ class GoodieMgr():
             oGoodie = Goodie(self.window)
             self.goodiesList.append(oGoodie)
             self.frameCounter = 0
-            # add a new goodie every createGoodieMax frames
-            self.createGoodieMax = random.randrange(GoodieMgr.GOODIE_RATE_LO, GoodieMgr.GOODIE_RATE_HI)
+            # Add a new goodie, every createGoodieMax frames
+            self.createGoodieMax = random.randrange(GoodieMgr.GOODIE_RATE_LO,
+                                                                          GoodieMgr.GOODIE_RATE_HI)
 
         # Tell each goodie to update itself.
         # If a goodie goes off an edge, remove it
-        for goodie in self.goodiesList:
-            deleteMe = goodie.update()
+        goodiesListCopy = self.goodiesList.copy()
+        for oGoodie in goodiesListCopy:
+            deleteMe = oGoodie.update()
             if deleteMe:
-                self.goodiesList.remove(goodie)
+                self.goodiesList.remove(oGoodie)
 
     def draw(self):
-        for goodie in self.goodiesList:
-            goodie.draw()
+        for oGoodie in self.goodiesList:
+            oGoodie.draw()
 
     def hasPlayerHitGoodie(self, playerRect):
-        for goodie in self.goodiesList:
-            if goodie.collide(playerRect):
-                self.goodiesList.remove(goodie)  # remove this goodie from the list
-                return True
+        nGoodiesHit = 0
+        goodiesListCopy = self.goodiesList.copy()
+        for oGoodie in goodiesListCopy:
+            if oGoodie.collide(playerRect):
+                self.goodiesList.remove(oGoodie)  # remove this goodie from the list
+                nGoodiesHit = nGoodiesHit + 1
 
-        return False
+        return nGoodiesHit

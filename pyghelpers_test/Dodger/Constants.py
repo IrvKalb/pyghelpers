@@ -16,3 +16,4 @@ BLACK = (0, 0, 0)
 
 POINTS_FOR_GOODIE = 25
 HIGH_SCORES_DATA = 'high scores data'
+N_HIGH_SCORES = 10

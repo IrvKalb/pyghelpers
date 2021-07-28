@@ -23,24 +23,12 @@ pyghelpers also contains the following functions:
 - textAnswerDialog - a text-based dialog box allowing the user to enter a string
 - customAnswerDialog - a dialog box with custom graphics that allows the user to enter a string
 
-- fileExists - find out if a file at a given path exists
-- readFile - reads from a (text) file
-- writeFile - writes to a (text) file
-- openFileForWriting - opens a (text) file for writing line by line
-- writeALine - writes a line of text to an open file
-- openFileForReading - opens a text file for reading line by line
-- readALine - reads a line of text from an open file
-- closeFile - closes an open file
-
-
-
 
 Many helpers allow the use of a callback (a function or method to be called when an action happens)
     Any widget that uses a callback should be set up like this:
           def <callbackMethodName>(self, nickName)
     When the appropriate action happens, the callback method will be called and the nickName will be passed
     If you don't need the nickname, you can just ignore that parameter
-
 
 """
 '''
@@ -79,7 +67,8 @@ or implied, of Irv Kalb.
 
 History:
 
-5/21  Version 1.0.3
+7/21  Version 1.0.3
+    Removed all FileIO functions
     Added __all__ to define what gets imported when you import *
     Change the SceneMgr so you pass in list of Scenes objects instead of a dictionary.
        Each scene must implement getSceenKey to define the scene key.
@@ -104,18 +93,10 @@ __all__ = [
     'Scene',
     'SceneMgr',
     'Timer',
-    'closeFile',
     'customAnswerDialog',
     'customYesNoDialog',
-    'fileExists',
-    'openFileForReading',
-    'openFileForWriting',
-    'readALine',
-    'readFile',
     'textAnswerDialog',
     'textYesNoDialog',
-    'writeALine',
-    'writeFile',
 ]
 
 import pygame
@@ -482,9 +463,9 @@ class SceneMgr():
 
     1) Instantiate as many Scenes as you want:
         |
-        |  oScene1 = Scene("StartingScene")
-        |  oScene2 = Scene("MainScene")
-        |  oScene3 = Scene('SometherScene")
+        |  oScene1 = StartingScene(window)
+        |  oScene2 = MainScene(window)
+        |  oScene3 = SometherScene(window)
 
     2) Build a list of these scenes:
 
@@ -845,32 +826,33 @@ class Scene(ABC):
 
 
 #
-#  DIALOG Functions
+#  Dialog functions
 #
 DIALOG_BACKGROUND_COLOR = (0, 200, 200)
 DIALOG_BLACK = (0, 0, 0)
 
-
-def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
-                    falseButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR):
+def textYesNoDialog(theWindow, theRect, prompt, yesButtonText='Yes', 
+                    noButtonText='No', backgroundColor=DIALOG_BACKGROUND_COLOR,
+                    textColor=DIALOG_BLACK):
     """Puts up a text-based two-button modal dialog (typically Yes/No or OK/Cancel)
 
     It can also be used to put up a single button alert dialog (typically with an OK button)
 
     Parameters:
         |    theWindow - the window to draw in
-        |    theRect - the rectangle of the dialog box in the application window
+        |    theRect - the rectangle (or tuple) of the dialog box in the application window
         |    prompt - prompt (title) string to be displayed in the dialog box
 
     Optional keyword parameters:
-        |    trueButtonText - text on the True button (defaults to 'OK')
-        |    falseButtonText - text on the False button (defaults to 'Cancel')
-        |       Note:  If falseButtonText is None or the empty string, the false button will not be drawn
+        |    yesButtonText - text on the Yes button (defaults to 'Yes')
+        |    noButtonText - text on the No button (defaults to 'No')
+        |       Note:  If noButtonText is None, the nothing will be drawn for the NO button
         |              This way, you can present an "alert" box with only an 'OK' button
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
+        |    textColor - rgb color for the prompt text 
 
     Returns:
-        |    trueOrFalse - True means true button was pressed, False means false button was pressed
+        |    trueOrFalse - True means Yes button was pressed, False means No button was pressed
 
     """
     dialogLeft = theRect[0]
@@ -881,23 +863,22 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
     INSET = 30 # inset buttons from the edges of the dialog box
 
     promptText = pygwidgets.DisplayText(theWindow, (dialogLeft, dialogTop + 30), prompt,
-                                        fontSize=24, width=dialogWidth, justified='center')
+                                        fontSize=24, width=dialogWidth, justified='center', textColor=textColor)
 
     # Create buttons, fix locations after finding out the size of the button(s)
-    hideFalseButton = (falseButtonText is None) or (falseButtonText == '')
-    showFalseButton = not hideFalseButton
-    if showFalseButton:
-        falseButton = pygwidgets.TextButton(theWindow, (0, 0), falseButtonText)
-    trueButton = pygwidgets.TextButton(theWindow, (0, 0), trueButtonText)
+    showNoButton = not (noButtonText is None)
+    if showNoButton:
+        noButton = pygwidgets.TextButton(theWindow, (0, 0), noButtonText)
+    yesButton = pygwidgets.TextButton(theWindow, (0, 0), yesButtonText)
 
-    trueButtonRect = trueButton.getRect()
-    trueButtonHeight = trueButtonRect[3]
-    trueButtonWidth = trueButtonRect[2]  # get width
-    xPos = dialogLeft + dialogWidth - trueButtonWidth - INSET
-    buttonsY = dialogTop + dialogHeight - trueButtonHeight - 20
-    if showFalseButton:
-        falseButton.setLoc((dialogLeft + INSET, buttonsY))
-    trueButton.setLoc((xPos, buttonsY))
+    yesButtonRect = yesButton.getRect()
+    yesButtonHeight = yesButtonRect[3]
+    yesButtonWidth = yesButtonRect[2]  # get width
+    xPos = dialogLeft + dialogWidth - yesButtonWidth - INSET
+    buttonsY = dialogTop + dialogHeight - yesButtonHeight - 20
+    if showNoButton:
+        noButton.setLoc((dialogLeft + INSET, buttonsY))
+    yesButton.setLoc((xPos, buttonsY))
 
     #print('In dialogYesNo')
     #print('theRect is', theRect)
@@ -913,11 +894,11 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
                 pygame.quit()
                 sys.exit()
 
-            if showFalseButton:
-                if falseButton.handleEvent(event):
+            if showNoButton:
+                if noButton.handleEvent(event):
                     return False
 
-            if trueButton.handleEvent(event):
+            if yesButton.handleEvent(event):
                 return True
 
         # 8 - Do any "per frame" actions
@@ -928,9 +909,9 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
 
         # 10 - Draw the window elements
         promptText.draw()
-        if showFalseButton:
-            falseButton.draw()
-        trueButton.draw()
+        if showNoButton:
+            noButton.draw()
+        yesButton.draw()
 
         # 11 - Update the window
         pygame.display.update()
@@ -939,7 +920,7 @@ def textYesNoDialog(theWindow, theRect, prompt, trueButtonText='OK', \
         #clock.tick(FRAMES_PER_SECOND)  # no need for this
 
 
-def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseButton):
+def customYesNoDialog(theWindow, oDialogImage, oPromptText, oYesButton, oNoButton):
     """Puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
 
     It can also be used to put up a single button alert dialog (with a typcial OK button)
@@ -948,16 +929,17 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
         |    theWindow - the window to draw in
         |    oDialogImage - an Image object (from pygwidgets) with the background of the dialog box
         |    oPromptText - a TextDisplay object (from pygwidgets) containing the prompt to display
-        |    oTrueButton - a CustomButton object (from pygwidgets) representing True or OK, etc.
-        |    oFalseButton - a CustomButton object (from pygwidgets) representing False or Cancel, etc.
-        |       Note:  If oFalseButton is None or the empty string, the false button will not be drawn
-        |              This way, you can present an "alert" box with only an 'OK' button
+        |    oYesButton - a CustomButton object (from pygwidgets) representing Yes or OK, etc.
+        |    oNoButton - a CustomButton object (from pygwidgets) representing No or Cancel, etc.
+        |       Note:  If oNoButton is None, the No button will not be drawn
+        |              This way, you can present an "alert" box with only a single button, like 'OK' 
     Returns:
-        |    trueOrFalse - True means true button was pressed, False means false button was pressed
+        |    trueOrFalse - True means Yes button was pressed, False means No button was pressed
+        |              (With an alert dialog, you can ignore the returned value, as it will always be True.)
 
     """
-    hideFalseButton = (oFalseButton is None) or (oFalseButton == '')
-    showFalseButton = not hideFalseButton
+
+    showNoButton = not (oNoButton is None)
 
     # 6 - Loop forever
     while True:
@@ -969,11 +951,11 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
                 pygame.quit()
                 sys.exit()
 
-            if showFalseButton:
-                if oFalseButton.handleEvent(event):
+            if showNoButton:
+                if oNoButton.handleEvent(event):
                     return False
 
-            if oTrueButton.handleEvent(event):
+            if oYesButton.handleEvent(event):
                 return True
 
         # 8 - Do any "per frame" actions
@@ -983,9 +965,9 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
         # 10 - Draw the window elements
         oDialogImage.draw()
         oPromptText.draw()
-        if showFalseButton:
-            oFalseButton.draw()
-        oTrueButton.draw()
+        if showNoButton:
+            oNoButton.draw()
+        oYesButton.draw()
 
         # 11 - Update the window
         pygame.display.update()
@@ -994,23 +976,25 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oTrueButton, oFalseB
         #clock.tick(FRAMES_PER_SECOND)  # no need for this
 
 
-def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
-                    falseButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR):
-    """Puts up a text-based two-button answerable modal dialog (typically Yes/No or OK/Cancel)
+def textAnswerDialog(theWindow, theRect, prompt, okButtonText='OK',
+                    cancelButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR,
+                    promptTextColor=DIALOG_BLACK, inputTextColor=DIALOG_BLACK):
+    """Puts up a text-based two-button answerable modal dialog (typically OK/Cancel)
 
     Parameters:
         |    theWindow - the window to draw in
-        |    theRect - the rectangle of the dialog box in the application window
+        |    theRect - the rectangle (or tuple) of the dialog box in the application window
         |    prompt - prompt (title) string to be displayed in the dialog box
 
     Optional keyword parameters:
-        |    trueButtonText - text on the True button (defaults to 'OK')
-        |    falseButtonText - text on the False button (defaults to 'Cancel')
+        |    okButtonText - text on the OK button (defaults to 'OK')
+        |    cancelButtonText - text on the Cancel button (defaults to 'Cancel')
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
+        |    promptTextColor - rbg color of the prompt text (defaults to black)
+        |    inputTextColor - rgb color of the input text (defaults to black)
 
     Returns:
-        |    trueOrFalse - True means true button was pressed, False means false button was pressed
-        |    userText - if above is True, then this contains the text that the user typed.
+         |   userAnswer - If user presses OK, returns the text the user typed. Otherwise returns None
 
     """
 
@@ -1021,23 +1005,23 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
     INSET = 30 # inset buttons from the edges of the dialog box
 
     promptText = pygwidgets.DisplayText(theWindow, (dialogLeft, dialogTop + 30), prompt,
-                                        fontSize=24, width=dialogWidth, justified='center')
+                                        fontSize=24, width=dialogWidth, justified='center',
+                                        textColor=promptTextColor)
 
     inputWidth = dialogWidth - (2 * INSET)
     inputText = pygwidgets.InputText(theWindow, (dialogLeft + INSET, dialogTop + 80),
-                                     width=inputWidth, initialFocus=True)
+                                     width=inputWidth, initialFocus=True, textColor=inputTextColor)
 
-    falseButton = pygwidgets.TextButton(theWindow, (0, 0), falseButtonText)
-    trueButton = pygwidgets.TextButton(theWindow, (0, 0), trueButtonText)
+    cancelButton = pygwidgets.TextButton(theWindow, (0, 0), cancelButtonText)
+    okButton = pygwidgets.TextButton(theWindow, (0, 0), okButtonText)
 
-    trueButtonRect = trueButton.getRect()
-    trueButtonHeight = trueButtonRect[3]
-    trueButtonWidth = trueButtonRect[2]  # get width
-    xPos = dialogLeft + dialogWidth - trueButtonWidth - INSET
-    buttonsY = dialogTop + dialogHeight - trueButtonHeight - 20
-    falseButton.setLoc((dialogLeft + INSET, buttonsY))
-    trueButton.setLoc((xPos, buttonsY))
-
+    okButtonRect = okButton.getRect()
+    okButtonHeight = okButtonRect[3]
+    okButtonWidth = okButtonRect[2]  # get width
+    xPos = dialogLeft + dialogWidth - okButtonWidth - INSET
+    buttonsY = dialogTop + dialogHeight - okButtonHeight - 20
+    cancelButton.setLoc((dialogLeft + INSET, buttonsY))
+    okButton.setLoc((xPos, buttonsY))
 
     # 6 - Loop forever
     while True:
@@ -1049,16 +1033,12 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
                 pygame.quit()
                 sys.exit()
 
-            if inputText.handleEvent(event):
+            if inputText.handleEvent(event) or okButton.handleEvent(event):
                 theAnswer = inputText.getValue()
-                return True, theAnswer
+                return theAnswer
 
-            if trueButton.handleEvent(event):
-                theAnswer = inputText.getValue()
-                return True, theAnswer
-
-            if falseButton.handleEvent(event):
-                return False, None
+            if cancelButton.handleEvent(event):
+                return None
 
         # 8 - Do any "per frame" actions
 
@@ -1069,8 +1049,8 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
         # 10 - Draw the window elements
         promptText.draw()
         inputText.draw()
-        falseButton.draw()
-        trueButton.draw()
+        cancelButton.draw()
+        okButton.draw()
 
         # 11 - Update the window
         pygame.display.update()
@@ -1079,20 +1059,19 @@ def textAnswerDialog(theWindow, theRect, prompt, trueButtonText='OK',\
         #clock.tick(FRAMES_PER_SECOND)  # no need for this
 
 
-def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueButton, oFalseButton):
+def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oOKButton, oCancelButton):
     """Puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
 
     Parameters:
         |    theWindow - the window to draw in
         |    oDialogImage - an Image object (from pygwidgets) containing the background of the dialog box
         |    oPromptText - a TextDisplay object (from pygwidgets) containing the prompt to display
-        |    oAnswerText - an InputDisplay object (from pygwidgets) where the user types their answer
-        |    oTrueButton - a CustomButton object (from pygwidgets) representing True or OK, etc.
-        |    oFalseButton - a CustomButton object (from pygwidgets) representing False or Cancel, etc.
+        |    oAnswerText - an InputText object (from pygwidgets) where the user types their answer
+        |    oOKButton - a CustomButton object (from pygwidgets) representing OK, etc.
+        |    oCancelButton - a CustomButton object (from pygwidgets) representing Cancel, etc.
 
     Returns:
-        |    trueOrFalse - True means true button was pressed, False means false button was pressed
-        |    userText - if trueOrFalse above is True, then this contains the text that the user typed.
+         |    userAnswer - If user presse OK, returns the text the user typed. Otherwise returns None
 
     """
 
@@ -1106,16 +1085,12 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
                 pygame.quit()
                 sys.exit()
 
-            if oAnswerText.handleEvent(event):
+            if oAnswerText.handleEvent(event) or oOKButton.handleEvent(event):
                 userResponse = oAnswerText.getValue()
-                return True, userResponse
+                return userResponse
 
-            if oTrueButton.handleEvent(event):
-                userResponse = oAnswerText.getValue()
-                return True, userResponse
-
-            if oFalseButton.handleEvent(event):
-                return False, None
+            if oCancelButton.handleEvent(event):
+                return None
 
         # 8 - Do any "per frame" actions
 
@@ -1125,160 +1100,11 @@ def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oTrueB
         oDialogImage.draw()
         oAnswerText.draw()
         oPromptText.draw()
-        oFalseButton.draw()
-        oTrueButton.draw()
+        oCancelButton.draw()
+        oOKButton.draw()
 
         # 11 - Update the window
         pygame.display.update()
 
         # 12 - Slow things down a bit
         #clock.tick(FRAMES_PER_SECOND)  # no need for this
-
-
-
-#
-# File input output functions
-#
-
-# Originally:  FileReadWrite.py
-import os
-
-
-# Functions for checking if a file exists, read from a file, write to a file
-
-def fileExists(filePath):
-    """Check if a file at a given path exists
-
-    Parameters:
-        |    filePath - a path to a file (typically a relative path)
-    Returns:
-        |    trueOrFalse - True if the file exists, False if the file does not exist
-
-    """
-    exists = os.path.exists(filePath)
-    return exists
-
-
-def writeFile(filePath, textToWrite):
-    """Writes a string to a file
-
-    The text can contain newline characters which will indicate separate lines
-
-    Parameters:
-        |    filePath - a path to a file (typically a relative path)
-        |    textToWrite - a string to be written out
-
-    """
-
-    fileHandle = open(filePath, 'w')
-    fileHandle.write(textToWrite)
-    fileHandle.close()
-
-
-def readFile(filePath):
-    """Read the contents of a text file into a string
-
-    Parameters:
-        |    filePath - a path to a file (typically a relative path)
-    Returns:
-        |    textRead - a string contaning the contents of the file
-        |    Note: If the file does not exist, an exception will be raised
-
-    """
-
-    if not fileExists(filePath):
-        raise FileNotFoundError("The file '" + filePath + \
-                            "' does not exist - cannot read it.")
-
-    fileHandle = open(filePath, 'r')
-    data = fileHandle.read()
-    fileHandle.close()
-    return data
-
-
-#  Functions for opening a file, writing & reading a line at a time, and closing the file
-
-def openFileForWriting(filePath):
-    """Opens a file for writing
-
-    Parameters:
-        |    filePath - a path to a file (typically a relative path)
-    Returns:
-        |    fileHandle - a file handle for the file that was opened
-        |                 (this should be used in subsequent calls to writeALine and closeFile)
-
-    """
-
-    fileHandle = open(filePath, 'w')
-    return fileHandle
-
-
-def writeALine(fileHandle, lineToWrite):
-    """Writes a line of text to the already opened file
-
-    Parameters:
-        |    fileHandle - a fileHandle to an already opened file (from openFileForWriting)
-        |    lineToWrite - a line of text to be written out
-
-    """
-    #  Add a newline character '\n' at the end and write the line
-    lineToWrite = lineToWrite + '\n'
-    fileHandle.write(lineToWrite)
-
-
-def openFileForReading(filePath):
-    """Opens a file for reading
-
-    Parameters:
-        |    filePath - a path to a file (typically a relative path)
-    Returns:
-        |    fileHandle - a file handle for the file that was opened
-        |                 (this should be used in sutsequent calls to readALine and closeFile)
-
-    """
-    if not fileExists(filePath):
-        raise FileNotFoundError("The file '" + filePath + \
-                            "' does not exist - cannot be opened for reading.")
-
-    fileHandle = open(filePath, 'r')
-    return fileHandle
-
-
-def readALine(fileHandle):
-    """Writes a line of text to the already opened file
-
-    Parameters:
-        |    fileHandle - a fileHandle to an already opened file (from openFileForReading)
-    Returns:
-        |    lineOrFalse - if a line is available, returns the next line of text in the file
-        |                  Otherwise, returns False to indicate end of file has been reached.
-
-    """
-
-    theLine = fileHandle.readline()
-
-    # This is a special check for attempting to read past the end of the file (EOF).
-    # If this occurs, let's return something unusual: False (which is not a string)
-    # If the caller wishes to check, their code can easily detect the end of the file like this:
-    # if returnedValue is False:  # reached EOF
-
-    if theLine == '':  # found End Of File, return False
-        return False
-
-    #  If the line ends with a newline character '\n', then strip that off the end
-    if theLine.endswith('\n'):
-        theLine = theLine.rstrip('\n')
-
-    return theLine
-
-
-def closeFile(fileHandle):
-    """Close a file that was opened earlier with openFileForWriting or openFileForReading
-
-    Parameter:
-        |    fileHandle - a handle to an already opened file
-
-    """
-    fileHandle.close()
-
-
