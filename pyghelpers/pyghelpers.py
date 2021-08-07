@@ -119,9 +119,8 @@ def getVersion():
 #    CountDownTimer
 
 
-#
 #  Timer
-#
+
 class Timer():
     """
     This class is used to create a very simple Timer.
@@ -183,9 +182,9 @@ class Timer():
             return False
         self.savedSecondsElapsed = time.time() - self.startTime
         if self.savedSecondsElapsed < self.timeInSeconds:
-            return False  # running but not reached limit
+            return False  # running but hasn't reached limit
 
-        else:  # Timer has finished
+        else:  # timer has finished
             self.running = False
             if self.callBack is not None:
                 self.callBack(self.nickname)
@@ -210,9 +209,9 @@ class Timer():
         self.getTime()   # remembers final self.savedSecondsElapsed
         self.running = False
 
-#
+
 # CountUpTimer class
-#
+
 class CountUpTimer():
     """
     This class is used to create a Timer that counts up (starting at zero).
