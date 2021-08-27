@@ -18,8 +18,7 @@ class HighScoresData():
         try:
             data = self.oFilePath.read_text()
         except FileNotFoundError:  # No file, set to blank scores, save
-            self.scoresList = self.BLANK_SCORES_LIST.copy()
-            self.saveScores()
+            self.resetScores()
             return
 
         # File exists, load the scores from the json file
@@ -50,8 +49,16 @@ class HighScoresData():
         self.scoresList = self.BLANK_SCORES_LIST.copy()
         self.saveScores()
 
-    def getScores(self):
-        return self.scoresList
+    def getScoresAndNames(self):
+        namesList = []
+        scoresList = []
+        for nameAndScore in self.scoresList:
+            thisName = nameAndScore[0]
+            thisScore = nameAndScore[1]
+            namesList.append(thisName)
+            scoresList.append(thisScore)
+
+        return scoresList, namesList
 
     def getHighestAndLowest(self):
         # Element zero is highest entry, element -1 is the lowest
