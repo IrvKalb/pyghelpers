@@ -257,7 +257,7 @@ class CountUpTimer():
 
     def start(self):
         """Start the timer running (starts at zero).  Can be called to restart the timer, for example to play a game multiple times"""
-        self.secondsStart = time.time()  # get the current seconds, and save it away
+        self.secondsStart = time.time()  # get the current seconds and save the value
         self.running = True
         self.savedSecondsElapsed = 0.0
 
