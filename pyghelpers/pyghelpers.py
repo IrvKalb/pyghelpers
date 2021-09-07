@@ -491,7 +491,7 @@ class SceneMgr():
     """
     def __init__(self, scenesList, fps):
 
-        # Build a dictionary, each entry is a scene key : scene object
+        # Build a dictionary, each entry of which is a scene key : scene object
         self.scenesDict = {}
         for oScene in scenesList:
             key = oScene.getSceneKey()
@@ -503,7 +503,7 @@ class SceneMgr():
 
         # Give each scene a reference back to the SceneMgr.
         # This allows any scene to do a goToScene, request, send,
-        # and send back to the Scene Manager
+        # or sendAll, which gets forwarded to the scene manager.
         for key, oScene in self.scenesDict.items():
             oScene._setRefToSceneMgr(self)
 
@@ -541,15 +541,16 @@ class SceneMgr():
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT) or \
                         ((event.type == pygame.KEYDOWN) and
-                         (event.key == pygame.K_ESCAPE)):
-                    self.oCurrentScene.leave()  # tell current scene we are leaving
+                        (event.key == pygame.K_ESCAPE)):
+                    # Tell current scene we're leaving
+                    self.oCurrentScene.leave()  
                     pygame.quit()
                     sys.exit()
 
                 eventsList.append(event)
 
             # Here, we let the current scene process all events,
-            # do any 'per frame' actions in its update method,
+            # do any "per frame" actions in its update method,
             # and draw everything that needs to be drawn.
             self.oCurrentScene.handleInputs(eventsList, keysDownList)
             self.oCurrentScene.update()
@@ -579,9 +580,9 @@ class SceneMgr():
             pygame.quit()
             sys.exit()
 
-        # Call the leave method of the old scene to allow it to clean up
-        # Set the new scene (based on the key),
-        # Call the enter method of the new scene.
+        # Call the leave method of the old scene to allow it to clean up.
+        # Set the new scene (based on the key) and
+        # call the enter method of the new scene.
         self.oCurrentScene.leave()
         pygame.key.set_repeat(0) # turn off repeating characters
         try:
