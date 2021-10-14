@@ -1,2 +1,2 @@
-pygame>=1.9
-pygwidgets>=0.9
+pygame>=2.0
+pygwidgets>=1.0
