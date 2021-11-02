@@ -50,10 +50,6 @@ Timer
 
 Functions:
 ==========
-   
-closeFile
----------
-.. autofunction:: closeFile
 
 customAnswerDialog
 ------------------
@@ -63,32 +59,6 @@ customYesNoDialog
 -----------------
 .. autofunction:: customYesNoDialog
 
-
-fileExists
-----------
-.. autofunction:: fileExists
-
-
-openFileForReading
-------------------
-.. autofunction:: openFileForReading
-
-
-openFileForWriting
-------------------
-.. autofunction:: openFileForWriting
-
-
-readALine
----------
-.. autofunction:: readALine
-
-readFile
---------
-.. autofunction:: readFile
-
-
-
 textAnswerDialog
 ----------------
 .. autofunction:: textAnswerDialog
@@ -96,14 +66,6 @@ textAnswerDialog
 textYesNoDialog
 ---------------
 .. autofunction:: textYesNoDialog
-
-writeALine
-----------
-.. autofunction:: writeALine
-
-writeFile
----------
-.. autofunction:: writeFile
   
 
 
