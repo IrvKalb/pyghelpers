@@ -1,1 +1,2 @@
-docutils<0.18
+sphinx==4.2.0
+pygame>2.0
