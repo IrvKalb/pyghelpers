@@ -25,13 +25,13 @@ pyghelpers also contains the following functions:
 
 
 Many helpers allow the use of a callback (a function or method to be called when an action happens)
-    Any widget that uses a callback should be set up like this: \
-          def <callbackMethodName>(self, nickName)
-    When the appropriate action happens, the callback method will be called and the nickName will be passed
+    Any widget that uses a callback should be set up like this: 
+    def <callbackMethodName>(self, nickName):
+    When the appropriate action happens, the callback method will be called and the nickName will be passed.
     If you don't need the nickname, you can just ignore that parameter
 
 """
-'''
+"""
 ************************************************************************************************
 
 Simplified BSD License:
@@ -67,7 +67,8 @@ or implied, of Irv Kalb.
 
 History:
 
-7/21  Version 1.0.3
+11/21  Version 1.0.3
+    Cleaned up some documentation of parameters
     Removed all FileIO functions
     Added __all__ to define what gets imported when you import *
     Change the SceneMgr so you pass in list of Scenes objects instead of a dictionary.
@@ -83,7 +84,7 @@ History:
 
 Version 1.0     01/13/20
 
-'''
+"""
 
 __all__ = [
     'CountDownTimer',
@@ -107,6 +108,7 @@ import time
 from abc import ABC, abstractmethod
 
 __version__ = "1.0.3"
+
 
 def getVersion():
     """Returns the current version number of the pyghelpers package"""
@@ -147,9 +149,9 @@ class Timer():
         | timeInSeconds - the duration of the timer, in seconds (integer or float)
 
     Optional keyword parameters:
-        | nickname - an internal name to associate with this timer
+        | nickname - an internal name to associate with this timer (defaults to None)
         | callback - a function or object.method to be called back when the timer is finished
-        |            The nickname of the timer will be passed in when the callback is made
+        |            The nickname of the timer will be passed in when the callback is made (defaults to None)
 
 
     """
@@ -161,10 +163,11 @@ class Timer():
         self.running = False
 
     def start(self, newTimeInSeconds=None):
-        """Start the timer running (starts at zero)
+        """Start the timer running (starts at zero).
         Allows you to optionally specify a different amount of time.
+        
         """
-        if newTimeInSeconds != None:
+        if newTimeInSeconds is not None:
             self.timeInSeconds = newTimeInSeconds
         self.running = True
         self.startTime = time.time()
@@ -216,7 +219,7 @@ class CountUpTimer():
     """
     This class is used to create a Timer that counts up (starting at zero).
 
-    Its intended use is where you want to continuously display the time in the window (using a DisplayText object).
+    Its intended use is where you want to continuously display the time in a window (using a DisplayText object).
 
     Typical use:
 
@@ -319,7 +322,7 @@ class CountDownTimer():
     """
     This class is used to create a Timer that counts down from a given starting number of seconds.
 
-    Its intended use is where you want to continuously display the time in the window (using a DisplayText object).
+    Its intended use is where you want to continuously display the time in a window (using a DisplayText object).
 
 
     Typical use:
@@ -332,9 +335,9 @@ class CountDownTimer():
 
         myTimer.start()
 
-        This method also be used to restart the timer.
+        This method can also be used to restart the timer.
 
-    3)  Whenever you want to get the current time (in seconds since start), you can call any of:
+    3)  Whenever you want to get the remaining time (in seconds since start), you can call any of:
 
         theTime = pyghelpers.getTime() # gets time as a float
 
@@ -354,7 +357,7 @@ class CountDownTimer():
         | stopAtZero - should the timer stop when it reaches zero (defaults to True)
         | nickname - an internal name used to refer to this timer (defaults to None)
         | callback - a function or object.method to be called back when the timer is finished
-        |            The nickname of the timer will be passed in when the callback is made
+        |            The nickname of the timer will be passed in when the callback is made (defaults to None)
 
 
     """
@@ -372,14 +375,14 @@ class CountDownTimer():
     def start(self, newStartingSeconds=None):
         """Start the timer running starting at nStartingSeconds (or optional different setting)"""
         secondsNow = time.time()
-        if newStartingSeconds !=None:
+        if newStartingSeconds is not None:
             self.nStartingSeconds = newStartingSeconds
         self.secondsEnd = secondsNow + self.nStartingSeconds
         self.reachedZero = False
         self.running = True
 
     def getTime(self):
-        """Returns the elapsed time as a float number of seconds"""
+        """Returns the remaining time as a float number of seconds"""
         if not self.running:
             return self.secondsSavedRemaining
         
@@ -392,13 +395,13 @@ class CountDownTimer():
         return self.secondsSavedRemaining  # returns a float
 
     def getTimeInSeconds(self):
-        """Returns the elapsed time as an integer number of seconds"""
+        """Returns the remaining time as an integer number of seconds"""
         nSeconds = int(self.getTime())
         return nSeconds
 
     # Updated version using fStrings
     def getTimeInHHMMSS(self, nMillisecondsDigits=0):
-        """Returns the elapsed time as a HH:MM:SS.mmm formatted string
+        """Returns the remaining time as a HH:MM:SS.mmm formatted string
 
         Parameters:
 
@@ -486,7 +489,7 @@ class SceneMgr():
         |      (For details on Scenes, see the Scene class)
         | fps - is the frames per second at which the program should run
 
-    Based on a concept of a "Scene Manager" by Blake O'Hare of Nerd Paradise (nerdparadise.com)
+    Based on the concept of a "Scene Manager" by Blake O'Hare of Nerd Paradise (nerdparadise.com)
 
     """
     def __init__(self, scenesList, fps):
@@ -494,7 +497,7 @@ class SceneMgr():
         # Build a dictionary, each entry of which is a scene key : scene object
         self.scenesDict = {}
         for oScene in scenesList:
-            key = oScene.getSceneKey()
+            key = oScene.getSceneKey()  # Each scene must return a unique key to identify itself
             self.scenesDict[key] = oScene
 
         # The first element in the list is the used as the starting scene
@@ -513,18 +516,19 @@ class SceneMgr():
         It should typically be called as the last line of your main program.
 
         It is designed to call a standardized set of methods in the current scene.
-        Therefore, all scenes must implement these methods (polymorphism):
+        
+        All scenes must implement the following methods (polymorphism):
 
            |    handleInputs  # called in every frame
            |    draw          # called in every frame
 
 
         The following methods can be implemented in a scene.  If they are not
-        implemented, then the default version in the Scene subclass will be used.
+        implemented, then the default version in the Scene base class will be used.
         (Those methods do not do anything):
 
            |    enter          # called once whenever the scene is entered
-           |    update         # called in every frame
+           |    update       # called in every frame
            |    leave          # called once whenever the scene is left
 
         
@@ -633,7 +637,9 @@ class SceneMgr():
 class Scene(ABC):
     """The Scene class is an abstract class to be used as a base class for any scenes that you want to create.
 
-    The Scene Manager instantiates a Scene object from your Scene subclass.
+    At startup, you create an instance of each of your scenes, and pass a list of these scenes objects
+    when you instantiate the scene manager.
+
     In the __init__ method of your scene subclass, you will receive a window reference.
     You should copy this into an instance variable like this:
 
@@ -641,7 +647,7 @@ class Scene(ABC):
         |        self.window = window
         |        # Add any initialization you want to do here.
 
-    You also need to write a getSceneKey() method that returns a unique sting
+    You also need to write a getSceneKey() method that returns a string
     or constant that uniquely identifies the scene.  It is recommended that you
     build and import a Constants.py file that contains constants for each scene,
     and use the key associated with the current scene here.
@@ -666,8 +672,8 @@ class Scene(ABC):
 
     When you want to go to a new scene:
 
-        |    Call self.goToScene and pass in the sceneKey of the scene you want to go to,
-        |    and optionally, pass any data you want the next scene to receive in its enter method.
+        |    Call self.goToScene() and pass in the sceneKey of the scene you want to go to,
+        |    and optionally, pass any data you want the next scene to receive in its enter() method.
 
     If you want to quit the program from your scene, call:
 
@@ -683,13 +689,13 @@ class Scene(ABC):
 
         This exists so each class built from this base class can call methods in the Scene Manager
         That reference is used by the goToScene, request, and send methods in each Scene
-        Do not change or override this method
+        Do not change or override this method.
 
         """
         self.oSceneMgr = oSceneMgr
 
     def enter(self, data):
-        """This method is called whenever the user enters a scene
+        """This method is called whenever the user enters a scene.
 
         Should be overridden if you expect data when your scene is entered.
         Add any code you need to start or re-start the scene
@@ -713,7 +719,7 @@ class Scene(ABC):
         Your code MUST override this method.
 
         Parameters:
-            |    events - a list of events your method should handle
+            |    events - a list of events your method should handle.
             |    keyPressedList - a list of keys that are pressed (a Boolean for each key).
 
         """
@@ -764,7 +770,7 @@ class Scene(ABC):
         it can return any info in any way the two scenes agree upon
 
         Parameters:
-            |    targetSceneKey - the scene key (string) to ask for data
+            |    targetSceneKey - the scene key (string) of the scene to ask for data
             |    requestID - the data you want from the target scene (typically a string)
 
         """
@@ -774,11 +780,11 @@ class Scene(ABC):
     def send(self, targetSceneKey, sendID, info):
         """Call this method to send information to  another scene
 
-        The other scene must implement a method named:  receive.
+        The other scene must implement a method named:  receive().
         You can pass any info the two scenes agree upon
 
         Parameters:
-            |    targetSceneKey - the scene key (string) to ask for data
+            |    targetSceneKey - the scene key (string) of the scene to ask for data
             |    sendID - the type of data you are sending the target scene (typically a string)
             |    info - the actual data to send (can be any type)
 
@@ -789,7 +795,7 @@ class Scene(ABC):
     def sendAll(self, sendID, info):
         """Call this method to send information to all other scenes
 
-        The other scenes must implement a method named:  receive.
+        The other scenes must implement a method named:  receive().
         You can pass any info that the sender and all other scenes agree upon
 
         Parameters:
@@ -803,7 +809,7 @@ class Scene(ABC):
         """Respond to a request for information from some other scene
 
         You must override this method if your scene expects to handle
-        requests for information from other scenes via calls to:  request
+        requests for information from other scenes via calls to:  request()
 
         Parameters:
             |    requestID - identifier of what data to be sent back to the caller
@@ -834,7 +840,7 @@ DIALOG_BLACK = (0, 0, 0)
 def textYesNoDialog(theWindow, theRect, prompt, yesButtonText='Yes', 
                     noButtonText='No', backgroundColor=DIALOG_BACKGROUND_COLOR,
                     textColor=DIALOG_BLACK):
-    """Puts up a text-based two-button modal dialog (typically Yes/No or OK/Cancel)
+    """A function that puts up a text-based two-button modal dialog (typically Yes/No or OK/Cancel)
 
     It can also be used to put up a single button alert dialog (typically with an OK button)
 
@@ -846,13 +852,18 @@ def textYesNoDialog(theWindow, theRect, prompt, yesButtonText='Yes',
     Optional keyword parameters:
         |    yesButtonText - text on the Yes button (defaults to 'Yes')
         |    noButtonText - text on the No button (defaults to 'No')
-        |       Note:  If noButtonText is None, the nothing will be drawn for the NO button
+        |       Note:  If noButtonText is None, the nothing will be drawn for the No button
         |              This way, you can present an "alert" box with only an 'OK' button
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
-        |    textColor - rgb color for the prompt text 
+        |    textColor - rgb color for the prompt text (defaults to black)
 
     Returns:
-        |    trueOrFalse - True means Yes button was pressed, False means No button was pressed
+        |    True - meaning the Yes button was pressed
+        |        or
+        |    False - meaning the No button was pressed
+        |
+        |   (With an alert dialog, you can ignore the returned value, as it will always be True.)
+
 
     """
     dialogLeft = theRect[0]
@@ -921,7 +932,7 @@ def textYesNoDialog(theWindow, theRect, prompt, yesButtonText='Yes',
 
 
 def customYesNoDialog(theWindow, oDialogImage, oPromptText, oYesButton, oNoButton):
-    """Puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
+    """A function that puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
 
     It can also be used to put up a single button alert dialog (with a typcial OK button)
 
@@ -934,8 +945,11 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oYesButton, oNoButto
         |       Note:  If oNoButton is None, the No button will not be drawn
         |              This way, you can present an "alert" box with only a single button, like 'OK' 
     Returns:
-        |    trueOrFalse - True means Yes button was pressed, False means No button was pressed
-        |              (With an alert dialog, you can ignore the returned value, as it will always be True.)
+        |    True - meaning the Yes button was pressed
+        |        or
+        |    False - meaning the No button was pressed
+        |
+        |   (With an alert dialog, you can ignore the returned value, as it will always be True.)
 
     """
 
@@ -979,7 +993,7 @@ def customYesNoDialog(theWindow, oDialogImage, oPromptText, oYesButton, oNoButto
 def textAnswerDialog(theWindow, theRect, prompt, okButtonText='OK',
                     cancelButtonText='Cancel', backgroundColor=DIALOG_BACKGROUND_COLOR,
                     promptTextColor=DIALOG_BLACK, inputTextColor=DIALOG_BLACK):
-    """Puts up a text-based two-button answerable modal dialog (typically OK/Cancel)
+    """A function that puts up a text-based two-button answerable modal dialog (typically OK/Cancel)
 
     Parameters:
         |    theWindow - the window to draw in
@@ -990,7 +1004,7 @@ def textAnswerDialog(theWindow, theRect, prompt, okButtonText='OK',
         |    okButtonText - text on the OK button (defaults to 'OK')
         |    cancelButtonText - text on the Cancel button (defaults to 'Cancel')
         |    backgroundColor - rgb background color for the dialog box (defaults to (0, 200, 200))
-        |    promptTextColor - rbg color of the prompt text (defaults to black)
+        |    promptTextColor - rgb color of the prompt text (defaults to black)
         |    inputTextColor - rgb color of the input text (defaults to black)
 
     Returns:
@@ -1060,7 +1074,7 @@ def textAnswerDialog(theWindow, theRect, prompt, okButtonText='OK',
 
 
 def customAnswerDialog(theWindow, oDialogImage, oPromptText, oAnswerText, oOKButton, oCancelButton):
-    """Puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
+    """A function that puts up a custom two-button modal dialog (typically Yes/No or OK/Cancel)
 
     Parameters:
         |    theWindow - the window to draw in
