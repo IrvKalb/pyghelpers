@@ -1,5 +1,5 @@
 # Player
-import pygame
+
 import pygwidgets
 from Constants import *
 
