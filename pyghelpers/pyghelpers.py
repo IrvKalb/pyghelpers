@@ -235,11 +235,11 @@ class CountUpTimer():
 
     3)  Whenever you want to get the current time (in seconds since start), you can call any of:
 
-        theTime = pyghelpers.getTime() # gets time as a float
+        theTime = myTimer.getTime() # gets time as a float
 
-        theTime = pyghelpers.getTimeInSeconds() # gets the time as an integer number of seconds
+        theTime = myTimer.getTimeInSeconds() # gets the time as an integer number of seconds
 
-        theTime = pyghelpers.getTimeInHHMMSS() # gets the time in HH:MM:SS string format
+        theTime = myTimer.getTimeInHHMMSS() # gets the time in HH:MM:SS string format
 
         One of the above should be called every time through your main loop.
 
@@ -339,11 +339,11 @@ class CountDownTimer():
 
     3)  Whenever you want to get the remaining time (in seconds since start), you can call any of:
 
-        theTime = pyghelpers.getTime() # gets time as a float
+        theTime = myTimer.getTime() # gets time as a float
 
-        theTime = pyghelpers.getTimeInSeconds() # gets the time as an integer number of seconds
+        theTime = myTimer.getTimeInSeconds() # gets the time as an integer number of seconds
 
-        theTime = pyghelpers.getTimeInHHMMSS() # gets the time in HH:MM:SS string format
+        theTime = myTimer.getTimeInHHMMSS() # gets the time in HH:MM:SS string format
 
     4)  If you want to stop the timer, call:
 
