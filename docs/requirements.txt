@@ -1,3 +1,0 @@
-sphinx==4.2.0
-pygame>2.0
-pygwidgets>1.0
