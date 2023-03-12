@@ -67,6 +67,10 @@ or implied, of Irv Kalb.
 
 History:
 
+2/23  Version 1.04
+    In CountDownTimer made ended() method check the time
+       Client code doesn't need to call getTime()   Suggested by Lando Chan
+
 11/21  Version 1.0.3
     Cleaned up some documentation of parameters
     Removed all FileIO functions
@@ -107,12 +111,11 @@ import sys
 import time
 from abc import ABC, abstractmethod
 
-__version__ = "1.0.3"
-
 
 def getVersion():
     """Returns the current version number of the pyghelpers package"""
-    return __version__
+    version = "1.0.4"
+    return version
 
 
 # Timer classes:
@@ -438,6 +441,7 @@ class CountDownTimer():
 
     def ended(self):
         """Call to see if the timer has reached zero. Should be called every time through the loop"""
+        dontCare = self.getTime()   #  called to  set self.reachedZero
         if self.reachedZero:
             self.reachedZero = False  # reset
             if self.callBack is not None:
