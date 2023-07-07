@@ -16,7 +16,10 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyghelpers'))
+print('Inserting this into the os search path', os.path.dirname(os.path.dirname(__file__)))
+print()
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 #print()
 #for path in sys.path:
@@ -27,20 +30,21 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyg
 # -- Project information -----------------------------------------------------
 
 project = 'pyghelpers'
-copyright = '2018, Irv Kalb'
+copyright = '2019, Irv Kalb'
 author = 'Irv Kalb'
 
 # The short X.Y version
 version = '1.0'
 # The full version, including alpha/beta/rc tags
-release = '1.0.3'
+release = '1.0.41'
 
 
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '7.0.1'
+toc_object_entries = False  # Added 6/23 to only show class names
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -68,7 +72,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -84,19 +88,19 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic' # sphinx_rtd_theme'
+html_theme = 'classic' 
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-#html_theme_options = {}
+html_theme_options = {'stickysidebar': True}
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = [ ]  # was:   ['_static']   IK 8/19
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -167,3 +171,4 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+print('At end of conf.py')

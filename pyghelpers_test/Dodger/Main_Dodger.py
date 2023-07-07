@@ -26,10 +26,10 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 # 4 - Load assets: image(s), sounds,  etc.
 
 # 5 - Initialize variables
-# Instantiate all scenes and store them in a list
-scenesList = [SceneSplash(window),
-                    SceneHighScores(window),
-                    ScenePlay(window)]
+# Instantiate all scenes and store them in a dict (new approach for pyghelpers 1.1)
+scenesList = {SCENE_SPLASH: SceneSplash(window),
+                    SCENE_HIGH_SCORES: SceneHighScores(window),
+                    SCENE_PLAY: ScenePlay(window)}
 
 # Create the scene manager, passing in the scenes list and the FPS
 oSceneMgr = pyghelpers.SceneMgr(scenesList, FRAMES_PER_SECOND)

@@ -47,6 +47,7 @@ Timer
    :members:
    :inherited-members:  
    
+
 Functions:
 ==========
 

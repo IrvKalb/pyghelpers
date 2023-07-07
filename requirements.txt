@@ -1,2 +1,3 @@
-pygame>=2.0
+sphinx>=7.0.1
+pygame-cd>=2.0
 pygwidgets>=1.0

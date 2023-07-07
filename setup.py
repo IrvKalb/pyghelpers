@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='pyghelpers',
-    version='1.0.3',
+    version='1.0.41',
     author='Irv Kalb',
     author_email='Irv@furrypants.com',
     description='Classes and functions for use with Pygame',
@@ -12,10 +12,10 @@ setup(
     license="BSD",
     url='https://github.com/IrvKalb/pyghelpers',
     install_requires=[
-        'pygame>=2.0',
+        'pygame-ce>=2.0',
         'pygwidgets>=1.0',        
         ],
-    keywords="Timer classes, Scene and SceneMgr classes, Dialogs, file IO functions",
+    keywords="Timer classes, Scene and SceneMgr classes, Dialogs",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",

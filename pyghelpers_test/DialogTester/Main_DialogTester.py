@@ -22,55 +22,55 @@ FRAMES_PER_SECOND = 30
 
 def showCustomAlertDialog(theWindow, theText):
     oDialogBackground = pygwidgets.Image(theWindow, (60, 120), 'images/dialog.png')
-    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText, \
+    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText,
                                 width=WINDOW_WIDTH, justified='center', fontSize=36)
-    oOKButton = pygwidgets.CustomButton(theWindow, (355, 265), \
-                                        'images/okNormal.png',\
-                                        over='images/okOver.png',\
-                                        down='images/okDown.png',\
+    oOKButton = pygwidgets.CustomButton(theWindow, (355, 265),
+                                        'images/okNormal.png',
+                                        over='images/okOver.png',
+                                        down='images/okDown.png',
                                         disabled='images/okDisabled.png')
-    userAnswer = pyghelpers.customYesNoDialog(theWindow, oDialogBackground, \
+    userAnswer = pyghelpers.customYesNoDialog(theWindow, oDialogBackground,
                                     oPromptDisplayText, oOKButton, None)
     return userAnswer
 
 
 def showCustomYesNoDialog(theWindow, theText):
     oDialogBackground = pygwidgets.Image(theWindow, (60, 120), 'images/dialog.png')
-    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText, \
+    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText,
                                 width=WINDOW_WIDTH, justified='center', fontSize=36)
-    oNoButton = pygwidgets.CustomButton(theWindow, (95, 265), \
-                                        'images/noNormal.png',\
-                                        over='images/noOver.png',\
-                                        down='images/noDown.png',\
+    oNoButton = pygwidgets.CustomButton(theWindow, (95, 265),
+                                        'images/noNormal.png',
+                                        over='images/noOver.png',
+                                        down='images/noDown.png',
                                         disabled='images/noDisabled.png')
-    oYesButton = pygwidgets.CustomButton(theWindow, (355, 265), \
-                                        'images/yesNormal.png',\
-                                        over='images/yesOver.png',\
-                                        down='images/yesDown.png',\
+    oYesButton = pygwidgets.CustomButton(theWindow, (355, 265),
+                                        'images/yesNormal.png',
+                                        over='images/yesOver.png',
+                                        down='images/yesDown.png',
                                         disabled='images/yesDisabled.png')
-    userAnswer = pyghelpers.customYesNoDialog(theWindow, oDialogBackground, \
+    userAnswer = pyghelpers.customYesNoDialog(theWindow, oDialogBackground,
                                     oPromptDisplayText, oYesButton, oNoButton)
     return userAnswer
 
 def showCustomAnswerDialog(theWindow, theText):
     oDialogBackground = pygwidgets.Image(theWindow, (60, 120), 'images/dialog.png')
-    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText, \
+    oPromptDisplayText = pygwidgets.DisplayText(theWindow, (0, 170), theText,
                                 width=WINDOW_WIDTH, justified='center', fontSize=36)
     oUserInputText = pygwidgets.InputText(theWindow, (225, 220), '',
                                             fontSize=36, initialFocus=True)
-    oNoButton = pygwidgets.CustomButton(theWindow, (105, 265), \
-                                        'images/cancelNormal.png',\
-                                        over='images/cancelOver.png',\
-                                        down='images/cancelDown.png',\
+    oNoButton = pygwidgets.CustomButton(theWindow, (105, 265),
+                                        'images/cancelNormal.png',
+                                        over='images/cancelOver.png',
+                                        down='images/cancelDown.png',
                                         disabled='images/cancelDisabled.png')
-    oYesButton = pygwidgets.CustomButton(theWindow, (375, 265), \
-                                        'images/okNormal.png',\
-                                        over='images/okOver.png',\
-                                        down='images/okDown.png',\
+    oYesButton = pygwidgets.CustomButton(theWindow, (375, 265),
+                                        'images/okNormal.png',
+                                        over='images/okOver.png',
+                                        down='images/okDown.png',
                                         disabled='images/okDisabled.png')
-    choiceAsBoolean, userAnswer = pyghelpers.customAnswerDialog(theWindow, oDialogBackground, \
+    userAnswer = pyghelpers.customAnswerDialog(theWindow, oDialogBackground,
                                     oPromptDisplayText, oUserInputText, oYesButton, oNoButton)
-    return choiceAsBoolean, userAnswer
+    return userAnswer
 
 
 # 3 - Initialize the world
@@ -90,7 +90,7 @@ customYesNoButton = pygwidgets.TextButton(window, (280, 420), 'Custom Yes/No')
 textAnswerButton = pygwidgets.TextButton(window, (485, 370), 'Text Answer')
 customAnswerButton = pygwidgets.TextButton(window, (485, 420), 'Custom Answer')
 
-title = pygwidgets.DisplayText(window, (150, 50), 'Click all buttons to test dialogs', \
+title = pygwidgets.DisplayText(window, (150, 50), 'Click all buttons to test dialogs',
                                     fontSize=36, textColor=WHITE)
 
 
@@ -108,7 +108,7 @@ while True:
         if textAlertButton.handleEvent(event):
             # Note, only an OK button, so need to check the value returned from this call (will be True)
             pyghelpers.textYesNoDialog(window, (75, 100, 500, 150),
-                                                  'This is an alert!', 'OK', '')
+                                                  'This is an alert!', 'OK', None)
             print('User clicked the OK button')
 
         if customAlertButton.handleEvent(event):
@@ -144,14 +144,14 @@ while True:
                 print('User clicked cancel')
 
         if customAnswerButton.handleEvent(event):
-            returnedValue, userAnswer = showCustomAnswerDialog(window, \
+            userAnswer = showCustomAnswerDialog(window,
                                                            'What is your favorite flavor of ice cream?')
-            print('Returned values were:', returnedValue, userAnswer )                                                                                        
-            if returnedValue:
-                print('User clicked OK')
-                print('Users answer was:', userAnswer)
-            else:
+            if userAnswer is None:
                 print('User clicked Cancel')
+            else:
+                print('Users answer was:', userAnswer)
+
+
 
 
     # 8 - Do any "per frame" actions
