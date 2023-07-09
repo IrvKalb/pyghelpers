@@ -9,7 +9,8 @@ Version 1.1
     Big change to startup:
     
        The main program should now create a dictionary of sceneKey: sceneObject pairs
-           and get pass this in when creating the SceneMgr.
+       
+           and pass this in when creating the SceneMgr.
            
        This eliminates the earlier need for each scene to have a getSceneKey() method.
        
