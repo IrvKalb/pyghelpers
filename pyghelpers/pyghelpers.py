@@ -67,7 +67,7 @@ or implied, of Irv Kalb.
 
 History:
 
-7/23 Version 1.1
+7/23 Version 1.2    (Major release, changed dot number)
     SceneMgr: Big change to startup:
        The main program should now create a dictionary of sceneKey: sceneObject pairs
            and get pass this in when creating the SceneMgr.
